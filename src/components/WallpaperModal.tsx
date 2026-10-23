@@ -185,17 +185,22 @@ export default function WallpaperModal({
       {/* Main Modal Container */}
       <div className="relative w-full max-w-7xl max-h-[94vh] bg-[#0E111B] border border-white/10 rounded-3xl overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.9)] flex flex-col z-10">
         {/* Top Modal Header */}
-        <div className="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between gap-4 bg-[#121624]">
+        <div className="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between gap-4 bg-[#11131A]">
           <div className="flex items-center gap-3">
             <h2
-              className="text-lg sm:text-xl font-bold text-white tracking-tight"
+              className="text-lg sm:text-xl font-bold text-[#F4F4F6] tracking-tight"
               style={{ fontFamily: "var(--font-playfair)" }}
             >
               {wallpaper.title}
             </h2>
-            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 text-[11px] font-semibold border border-amber-500/20">
-              <Sparkles className="w-3 h-3" /> {wallpaper.resolution} AI Enhanced
-            </span>
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/[0.08] text-zinc-200 text-[11px] font-medium border border-white/10">
+                <Sparkles className="w-3 h-3 text-zinc-300" /> {wallpaper.resolution} Ultra HD
+              </span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-white/[0.05] text-zinc-400 text-[11px] font-mono border border-white/[0.06]">
+                {wallpaper.aspectRatio === "9:16" ? "Portrait" : "Landscape"}
+              </span>
+            </div>
           </div>
 
           {/* Right Action Icons in Header */}
@@ -520,11 +525,25 @@ export default function WallpaperModal({
               </div>
             </div>
 
-            {/* Bottom Meta stats */}
-            <div className="pt-4 border-t border-white/[0.08] flex items-center justify-between text-[11px] text-zinc-500">
-              <span>File Size: {wallpaper.fileSize}</span>
-              <span>Dimensions: {wallpaper.dimensions}</span>
-              <span>Aspect: {wallpaper.aspectRatio}</span>
+            {/* Technical Specifications */}
+            <div className="pt-4 border-t border-white/[0.08] space-y-2">
+              <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                Technical Specifications
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-xs text-zinc-300">
+                <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                  <span className="text-[10px] text-zinc-400 block">Resolution</span>
+                  <span className="font-mono font-medium">{wallpaper.resolution} ({wallpaper.dimensions})</span>
+                </div>
+                <div className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+                  <span className="text-[10px] text-zinc-400 block">Orientation</span>
+                  <span className="font-medium">{wallpaper.aspectRatio === "9:16" ? "Portrait" : "Landscape"} ({wallpaper.aspectRatio})</span>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-1">
+                <span>File Size: {wallpaper.fileSize}</span>
+                <span>Category: {wallpaper.category}</span>
+              </div>
             </div>
           </div>
         </div>

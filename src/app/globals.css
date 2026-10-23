@@ -6,19 +6,26 @@
 }
 
 :root {
-  --background: #090A0F;
-  --foreground: #EDEDED;
-  --card-bg: #111420;
-  --card-hover: #161A29;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --accent-amber: #F59E0B;
+  --background: #0B0C10;
+  --foreground: #F4F4F6;
+  --card-bg: #13141C;
+  --card-hover: #1A1C26;
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --muted-gray: #8E909B;
+  --warm-white: #F4F4F6;
 }
 
 body {
-  background-color: #090A0F;
-  color: #EDEDED;
+  background-color: #0B0C10;
+  color: #F4F4F6;
   font-family: var(--font-sans);
   overflow-x: hidden;
+}
+
+/* Accessible visible focus states */
+:focus-visible {
+  outline: 2px solid rgba(244, 244, 246, 0.6);
+  outline-offset: 2px;
 }
 
 /* Custom Scrollbars */

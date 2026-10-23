@@ -1,12 +1,11 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { ArrowRight, Sparkles, Filter, AlertCircle, Heart } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Sparkles, AlertCircle, Compass, Search, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
 import HeroSection from "@/components/HeroSection";
 import CategoryBar from "@/components/CategoryBar";
-import FilterBar from "@/components/FilterBar";
 import WallpaperCard from "@/components/WallpaperCard";
 import CuratedCollections from "@/components/CuratedCollections";
 import WallpaperModal from "@/components/WallpaperModal";
@@ -19,7 +18,6 @@ import {
   WALLPAPERS,
   Wallpaper,
   CollectionItem,
-  CategoryItem,
 } from "@/data/wallpapers";
 
 export default function HomePage() {
@@ -27,11 +25,9 @@ export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [deviceFilter, setDeviceFilter] = useState<string>("all");
   const [resolutionFilter, setResolutionFilter] = useState<string>("all");
-  const [sortBy, setSortBy] = useState<string>("trending");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedWallpaper, setSelectedWallpaper] = useState<Wallpaper | null>(null);
-  const [activeNav, setActiveNav] = useState<string>("home");
 
   // Modals state
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -65,10 +61,9 @@ export default function HomePage() {
       if (saved) {
         setFavorites(JSON.parse(saved));
       } else {
-        // Initial sample favorites
-        const sampleFavs = ["wall-1", "wall-3", "wall-7"];
-        setFavorites(sampleFavs);
-        localStorage.setItem("wallora_favorites", JSON.stringify(sampleFavs));
+        const initialFavs = ["wall-1", "wall-3", "wall-7"];
+        setFavorites(initialFavs);
+        localStorage.setItem("wallora_favorites", JSON.stringify(initialFavs));
       }
     } catch {
       // Ignore storage errors
@@ -81,7 +76,7 @@ export default function HomePage() {
       try {
         localStorage.setItem("wallora_favorites", JSON.stringify(next));
       } catch {
-        // Ignore storage errors
+        // Ignore
       }
       return next;
     });
@@ -100,11 +95,20 @@ export default function HomePage() {
     setWallpapers((prev) => [newWall, ...prev]);
   };
 
-  // Filtered Wallpapers
-  const filteredWallpapers = useMemo(() => {
+  // Section 3: Trending This Week (Top 8 trending wallpapers)
+  const trendingList = useMemo(() => {
+    return wallpapers.filter((w) => w.trending).slice(0, 8);
+  }, [wallpapers]);
+
+  // Section 4: Recently Added (Top 8 recently added wallpapers)
+  const recentlyAddedList = useMemo(() => {
+    return wallpapers.filter((w) => w.recentlyAdded).slice(0, 8);
+  }, [wallpapers]);
+
+  // Section 6: Explore All Wallpapers (Filtered or all)
+  const filteredExploreWallpapers = useMemo(() => {
     let result = [...wallpapers];
 
-    // Search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       result = result.filter(
@@ -112,22 +116,18 @@ export default function HomePage() {
           w.title.toLowerCase().includes(q) ||
           w.category.toLowerCase().includes(q) ||
           w.tags.some((t) => t.toLowerCase().includes(q)) ||
-          w.aiPrompt.toLowerCase().includes(q) ||
           w.author.name.toLowerCase().includes(q)
       );
     }
 
-    // Category filter
     if (selectedCategory !== "all") {
       result = result.filter((w) => w.category === selectedCategory);
     }
 
-    // Device filter
     if (deviceFilter !== "all") {
       result = result.filter((w) => w.deviceType === deviceFilter);
     }
 
-    // Resolution filter
     if (resolutionFilter !== "all") {
       if (resolutionFilter === "OLED") {
         result = result.filter((w) => w.tags.includes("OLED") || w.category === "dark");
@@ -136,52 +136,36 @@ export default function HomePage() {
       }
     }
 
-    // Sorting
-    if (sortBy === "trending") {
-      result.sort((a, b) => b.views - a.views);
-    } else if (sortBy === "downloads") {
-      result.sort((a, b) => b.downloads - a.downloads);
-    } else if (sortBy === "likes") {
-      result.sort((a, b) => b.likes - a.likes);
-    } else if (sortBy === "newest") {
-      result.sort((a, b) => (b.recentlyAdded ? 1 : 0) - (a.recentlyAdded ? 1 : 0));
-    }
-
     return result;
-  }, [wallpapers, searchQuery, selectedCategory, deviceFilter, resolutionFilter, sortBy]);
-
-  // Section specific arrays
-  const trendingList = useMemo(() => {
-    return wallpapers.filter((w) => w.trending).slice(0, 6);
-  }, [wallpapers]);
-
-  const recentlyAddedList = useMemo(() => {
-    return wallpapers.filter((w) => w.recentlyAdded).slice(0, 6);
-  }, [wallpapers]);
+  }, [wallpapers, searchQuery, selectedCategory, deviceFilter, resolutionFilter]);
 
   const favoriteWallpapers = useMemo(() => {
     return wallpapers.filter((w) => favorites.includes(w.id));
   }, [wallpapers, favorites]);
 
-  // Filter reset
-  const handleResetFilters = () => {
+  const handleResetExploreFilters = () => {
     setSelectedCategory("all");
     setDeviceFilter("all");
     setResolutionFilter("all");
     setSearchQuery("");
-    setSortBy("trending");
   };
 
   const handleSelectCollection = (col: CollectionItem) => {
     const matchTag = col.tags[0].toLowerCase();
     setSearchQuery(matchTag);
     notify(`Filtered by "${col.title}"`);
-    document.getElementById("wallpapers-section")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("explore-all-section")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const hasActiveFilters =
+    searchQuery.trim() !== "" ||
+    selectedCategory !== "all" ||
+    deviceFilter !== "all" ||
+    resolutionFilter !== "all";
+
   return (
-    <div className="min-h-screen bg-[#090A0F] text-[#EDEDED] flex flex-col font-sans selection:bg-amber-500/30 selection:text-amber-200">
-      {/* Top Navbar */}
+    <div className="min-h-screen bg-[#0B0C10] text-[#F4F4F6] flex flex-col font-sans selection:bg-white/20 selection:text-white">
+      {/* 1. Simplify Navigation: Compact, Clean Navbar */}
       <Navbar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -190,191 +174,213 @@ export default function HomePage() {
         onOpenUpload={() => setIsUploadOpen(true)}
         onOpenAIStudio={() => setIsAIOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        activeNav={activeNav}
-        setActiveNav={setActiveNav}
       />
 
-      {/* Main Layout Area: Left Sidebar + Center/Right Content */}
-      <div className="max-w-[1920px] mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1 flex gap-6">
-        {/* Sidebar Navigation (Matches screenshot!) */}
-        <Sidebar
-          activeNav={activeNav}
-          setActiveNav={setActiveNav}
-          favoritesCount={favorites.length}
-          onOpenUpload={() => setIsUploadOpen(true)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onOpenAIStudio={() => setIsAIOpen(true)}
+      {/* Main Container */}
+      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-4 space-y-12 flex-1">
+        {/* SECTION 1: Featured Wallpaper (Hero Section) */}
+        <HeroSection
+          wallpapers={wallpapers}
+          onSelectWallpaper={(w) => setSelectedWallpaper(w)}
+          onExploreClick={() => {
+            document.getElementById("explore-all-section")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          onBrowseCollectionsClick={() => {
+            document.getElementById("collections-section")?.scrollIntoView({ behavior: "smooth" });
+          }}
         />
 
-        {/* Center Main Stage */}
-        <main className="flex-1 min-w-0 py-4 pb-20">
-          {/* Hero Section */}
-          <HeroSection
-            wallpapers={wallpapers}
-            onSelectWallpaper={(w) => setSelectedWallpaper(w)}
-            onExploreClick={() => {
-              document.getElementById("wallpapers-section")?.scrollIntoView({ behavior: "smooth" });
-            }}
-            onTrendingClick={() => {
-              document.getElementById("trending-section")?.scrollIntoView({ behavior: "smooth" });
-            }}
-          />
+        {/* SECTION 2: Popular Categories */}
+        <CategoryBar
+          selectedCategory={selectedCategory}
+          onSelectCategory={(catId) => {
+            setSelectedCategory(catId);
+            if (catId !== "all") {
+              document.getElementById("explore-all-section")?.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        />
 
-          {/* Category Bar (Row of thumbnail chips matching screenshot!) */}
-          <CategoryBar
-            selectedCategory={selectedCategory}
-            onSelectCategory={(catId) => {
-              setSelectedCategory(catId);
-              if (catId !== "all") {
-                document.getElementById("wallpapers-section")?.scrollIntoView({ behavior: "smooth" });
-              }
-            }}
-          />
-
-          {/* Filter Bar (Devices, Resolutions, Sorting) */}
-          <FilterBar
-            deviceFilter={deviceFilter}
-            setDeviceFilter={setDeviceFilter}
-            resolutionFilter={resolutionFilter}
-            setResolutionFilter={setResolutionFilter}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            totalCount={filteredWallpapers.length}
-            resetFilters={handleResetFilters}
-          />
-
-          {/* SECTION 1: Trending Wallpapers (Matches screenshot layout!) */}
-          {selectedCategory === "all" && !searchQuery && deviceFilter === "all" && (
-            <section id="trending-section" className="w-full py-6 select-none">
-              <div className="flex items-center justify-between mb-4">
-                <h2
-                  className="text-xl sm:text-2xl font-bold text-white tracking-tight"
-                  style={{ fontFamily: "var(--font-playfair)" }}
-                >
-                  Trending Wallpapers
-                </h2>
-                <button
-                  onClick={() => {
-                    setSortBy("trending");
-                    document.getElementById("wallpapers-section")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1 group transition"
-                >
-                  <span>View All</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                </button>
-              </div>
-
-              {/* 6 Grid Cards across widescreen (Exact screenshot arrangement!) */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
-                {trendingList.map((wallpaper) => (
-                  <WallpaperCard
-                    key={`trending-${wallpaper.id}`}
-                    wallpaper={wallpaper}
-                    isFavorite={favorites.includes(wallpaper.id)}
-                    onToggleFavorite={toggleFavorite}
-                    onSelect={(w) => setSelectedWallpaper(w)}
-                    onNotify={notify}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* SECTION 2: Recently Added (Matches screenshot second section!) */}
-          {selectedCategory === "all" && !searchQuery && deviceFilter === "all" && (
-            <section className="w-full py-6 select-none">
-              <div className="flex items-center justify-between mb-4">
-                <h2
-                  className="text-xl sm:text-2xl font-bold text-white tracking-tight"
-                  style={{ fontFamily: "var(--font-playfair)" }}
-                >
-                  Recently Added
-                </h2>
-                <button
-                  onClick={() => {
-                    setSortBy("newest");
-                    document.getElementById("wallpapers-section")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  className="text-xs font-semibold text-zinc-400 hover:text-white flex items-center gap-1 group transition"
-                >
-                  <span>View All</span>
-                  <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
-                </button>
-              </div>
-
-              {/* 6 Grid Cards across widescreen */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
-                {recentlyAddedList.map((wallpaper) => (
-                  <WallpaperCard
-                    key={`recent-${wallpaper.id}`}
-                    wallpaper={wallpaper}
-                    isFavorite={favorites.includes(wallpaper.id)}
-                    onToggleFavorite={toggleFavorite}
-                    onSelect={(w) => setSelectedWallpaper(w)}
-                    onNotify={notify}
-                  />
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* Curated Collections Showcase */}
-          <CuratedCollections onSelectCollection={handleSelectCollection} />
-
-          {/* SECTION 3: All Filtered Wallpapers Main Gallery */}
-          <section id="wallpapers-section" className="w-full pt-6 select-none">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h2
-                  className="text-xl sm:text-2xl font-bold text-white tracking-tight"
-                  style={{ fontFamily: "var(--font-playfair)" }}
-                >
-                  {searchQuery
-                    ? `Results for "${searchQuery}"`
-                    : selectedCategory !== "all"
-                    ? `${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} Wallpapers`
-                    : "Complete Wallora Gallery"}
-                </h2>
-                <span className="text-xs text-zinc-400">
-                  Showing {filteredWallpapers.length} high-resolution AI wallpapers
-                </span>
-              </div>
-
-              {/* Quick AI Studio Button */}
-              <button
-                onClick={() => setIsAIOpen(true)}
-                className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold border border-amber-500/25 transition"
+        {/* SECTION 3: Trending This Week */}
+        <section id="trending-section" className="w-full pt-2 select-none">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2
+                className="text-xl sm:text-2xl font-normal text-[#F4F4F6] tracking-tight"
+                style={{ fontFamily: "var(--font-playfair)" }}
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Upscale to 8K</span>
-              </button>
+                Trending This Week
+              </h2>
+              <p className="text-xs text-[#8E909B] mt-0.5">
+                Most viewed and downloaded by the community
+              </p>
+            </div>
+            <Link
+              href="/explore?sort=trending"
+              className="text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 group transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 rounded-lg px-2 py-1"
+            >
+              <span>View all</span>
+              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          {/* Consistent Grid: 4 columns on large screens, elegant spacing, no layout shifts */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {trendingList.map((wallpaper) => (
+              <WallpaperCard
+                key={`trending-${wallpaper.id}`}
+                wallpaper={wallpaper}
+                isFavorite={favorites.includes(wallpaper.id)}
+                onToggleFavorite={toggleFavorite}
+                onSelect={(w) => setSelectedWallpaper(w)}
+                onNotify={notify}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* SECTION 4: Recently Added */}
+        <section id="recent-section" className="w-full pt-2 select-none">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2
+                className="text-xl sm:text-2xl font-normal text-[#F4F4F6] tracking-tight"
+                style={{ fontFamily: "var(--font-playfair)" }}
+              >
+                Recently Added
+              </h2>
+              <p className="text-xs text-[#8E909B] mt-0.5">
+                Fresh additions rendered in ultra-high resolution
+              </p>
+            </div>
+            <Link
+              href="/explore?sort=newest"
+              className="text-xs font-medium text-zinc-400 hover:text-white flex items-center gap-1.5 group transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 rounded-lg px-2 py-1"
+            >
+              <span>View all</span>
+              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {recentlyAddedList.map((wallpaper) => (
+              <WallpaperCard
+                key={`recent-${wallpaper.id}`}
+                wallpaper={wallpaper}
+                isFavorite={favorites.includes(wallpaper.id)}
+                onToggleFavorite={toggleFavorite}
+                onSelect={(w) => setSelectedWallpaper(w)}
+                onNotify={notify}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* SECTION 5: Curated Collections */}
+        <CuratedCollections onSelectCollection={handleSelectCollection} />
+
+        {/* SECTION 6: A small "Explore all wallpapers" section */}
+        <section id="explore-all-section" className="w-full pt-6 pb-8 select-none border-t border-white/[0.07]">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+            <div>
+              <h2
+                className="text-xl sm:text-2xl font-normal text-[#F4F4F6] tracking-tight"
+                style={{ fontFamily: "var(--font-playfair)" }}
+              >
+                Explore All Wallpapers
+              </h2>
+              <p className="text-xs text-[#8E909B] mt-0.5">
+                Search, filter by device and resolution, or browse our complete catalog of {wallpapers.length} wallpapers
+              </p>
             </div>
 
-            {/* Empty State */}
-            {filteredWallpapers.length === 0 ? (
-              <div className="w-full py-16 flex flex-col items-center justify-center text-center rounded-3xl bg-[#111420] border border-white/[0.08] p-8 space-y-4">
-                <div className="p-4 rounded-full bg-white/[0.04] text-zinc-500">
-                  <AlertCircle className="w-8 h-8" />
-                </div>
-                <h3 className="text-lg font-semibold text-white">No wallpapers found</h3>
-                <p className="text-xs text-zinc-400 max-w-md">
-                  No wallpapers matched your active search or filters. Try searching for "Cyberpunk", "Minimal", "Nature", or reset filters.
-                </p>
-                <button
-                  onClick={handleResetFilters}
-                  className="px-5 py-2.5 rounded-full bg-white text-zinc-950 font-semibold text-xs hover:bg-zinc-200 transition"
-                >
-                  Reset All Filters
-                </button>
+            {/* Quick Filter Controls */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex rounded-full bg-[#13141C] border border-white/[0.08] p-1 text-xs">
+                {["all", "desktop", "phone"].map((dev) => (
+                  <button
+                    key={dev}
+                    onClick={() => setDeviceFilter(dev)}
+                    className={`px-3 py-1 rounded-full transition capitalize ${
+                      deviceFilter === dev
+                        ? "bg-white/[0.12] text-white font-medium"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    {dev === "all" ? "All Devices" : dev}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
-                {filteredWallpapers.map((wallpaper) => (
+
+              <div className="inline-flex rounded-full bg-[#13141C] border border-white/[0.08] p-1 text-xs">
+                {["all", "8K", "4K"].map((res) => (
+                  <button
+                    key={res}
+                    onClick={() => setResolutionFilter(res)}
+                    className={`px-3 py-1 rounded-full transition uppercase ${
+                      resolutionFilter === res
+                        ? "bg-white/[0.12] text-white font-medium"
+                        : "text-zinc-400 hover:text-white"
+                    }`}
+                  >
+                    {res === "all" ? "All Res" : res}
+                  </button>
+                ))}
+              </div>
+
+              {hasActiveFilters && (
+                <button
+                  onClick={handleResetExploreFilters}
+                  className="text-xs text-zinc-400 hover:text-white underline px-2 py-1 transition"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Active Filter Indicator */}
+          {hasActiveFilters && (
+            <div className="mb-4 flex items-center justify-between text-xs text-zinc-400 bg-[#13141C] px-3.5 py-2 rounded-xl border border-white/[0.06]">
+              <span>
+                Showing {filteredExploreWallpapers.length} matching wallpapers
+                {selectedCategory !== "all" && ` in ${selectedCategory}`}
+                {searchQuery && ` for "${searchQuery}"`}
+              </span>
+              <button
+                onClick={handleResetExploreFilters}
+                className="text-zinc-300 hover:text-white flex items-center gap-1"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Clear filters</span>
+              </button>
+            </div>
+          )}
+
+          {/* Wallpapers Grid or Empty State */}
+          {filteredExploreWallpapers.length === 0 ? (
+            <div className="w-full py-16 flex flex-col items-center justify-center text-center rounded-2xl bg-[#13141C] border border-white/[0.07] p-8 space-y-3">
+              <div className="p-3.5 rounded-full bg-white/[0.04] text-zinc-400">
+                <AlertCircle className="w-6 h-6" />
+              </div>
+              <h3 className="text-base font-medium text-white">No wallpapers found</h3>
+              <p className="text-xs text-[#8E909B] max-w-sm">
+                No wallpapers matched your search or filters. Try adjusting keywords or resetting filters.
+              </p>
+              <button
+                onClick={handleResetExploreFilters}
+                className="mt-2 px-4 py-2 rounded-full bg-white text-zinc-950 font-medium text-xs hover:bg-zinc-200 transition"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {filteredExploreWallpapers
+                .slice(0, hasActiveFilters ? filteredExploreWallpapers.length : 8)
+                .map((wallpaper) => (
                   <WallpaperCard
-                    key={wallpaper.id}
+                    key={`explore-${wallpaper.id}`}
                     wallpaper={wallpaper}
                     isFavorite={favorites.includes(wallpaper.id)}
                     onToggleFavorite={toggleFavorite}
@@ -382,11 +388,32 @@ export default function HomePage() {
                     onNotify={notify}
                   />
                 ))}
+            </div>
+          )}
+
+          {/* Explore Page Link Banner */}
+          {!hasActiveFilters && (
+            <div className="mt-8 p-6 sm:p-8 rounded-2xl bg-[#13141C] border border-white/[0.07] flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+              <div>
+                <h3 className="text-base sm:text-lg font-medium text-[#F4F4F6]">
+                  Looking for more wallpapers?
+                </h3>
+                <p className="text-xs text-[#8E909B] mt-0.5">
+                  Browse our dedicated Explore catalog with comprehensive device ratios, sorting, and tag filters.
+                </p>
               </div>
-            )}
-          </section>
-        </main>
-      </div>
+
+              <Link
+                href="/explore"
+                className="px-6 py-2.5 rounded-full bg-[#F4F4F6] text-[#0B0C10] font-medium text-xs hover:bg-white active:scale-95 transition-all flex items-center gap-2 shrink-0 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+              >
+                <span>Browse Full Explore Catalog</span>
+                <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+          )}
+        </section>
+      </main>
 
       {/* Footer */}
       <Footer onNotify={notify} />
@@ -394,7 +421,7 @@ export default function HomePage() {
       {/* Fullscreen Wallpaper Preview & Studio Modal */}
       <WallpaperModal
         wallpaper={selectedWallpaper}
-        allWallpapers={filteredWallpapers}
+        allWallpapers={wallpapers}
         isFavorite={selectedWallpaper ? favorites.includes(selectedWallpaper.id) : false}
         onToggleFavorite={toggleFavorite}
         onClose={() => setSelectedWallpaper(null)}
@@ -446,8 +473,8 @@ export default function HomePage() {
 
       {/* Floating Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#141826]/95 border border-white/15 text-white text-xs font-medium shadow-[0_10px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-in slide-in-from-bottom-5">
-          <div className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-[#14161F]/95 border border-white/15 text-white text-xs font-medium shadow-xl backdrop-blur-xl animate-in slide-in-from-bottom-5">
+          <div className="w-1.5 h-1.5 rounded-full bg-white" />
           <span>{toastMessage}</span>
         </div>
       )}
