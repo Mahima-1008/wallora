@@ -5,6 +5,8 @@ import { Heart, Download, Eye, Check } from "lucide-react";
 import confetti from "canvas-confetti";
 import { Wallpaper } from "@/data/wallpapers";
 
+import { downloadWallpaper, getAvailableResolutions } from "@/lib/wallpaperUtils";
+
 interface WallpaperCardProps {
   wallpaper: Wallpaper;
   isFavorite: boolean;
@@ -23,44 +25,24 @@ export default function WallpaperCard({
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
-  // Trigger real file download
+  // Trigger real file download using wallpaperUtils
   const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsDownloading(true);
 
     try {
-      const response = await fetch(wallpaper.imageUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      const cleanTitle = wallpaper.title.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase();
-      link.download = `wallora-${cleanTitle}-${wallpaper.resolution.toLowerCase()}.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-
-      confetti({
-        particleCount: 35,
-        spread: 50,
-        origin: { y: 0.8 },
-        colors: ["#FFFFFF", "#D4AF37", "#9CA3AF"],
-      });
+      const versions = getAvailableResolutions(wallpaper);
+      const targetVersion = versions.find((v) => v.isNative) || versions[0];
+      await downloadWallpaper(wallpaper, targetVersion);
 
       setDownloadSuccess(true);
-      onNotify(`Downloaded "${wallpaper.title}" in ${wallpaper.resolution}`);
+      onNotify(`Downloaded "${wallpaper.title}" (${targetVersion.dimensions})`);
 
       setTimeout(() => {
         setDownloadSuccess(false);
         setIsDownloading(false);
       }, 2000);
     } catch {
-      const link = document.createElement("a");
-      link.href = wallpaper.imageUrl;
-      link.download = `${wallpaper.title}.jpg`;
-      link.target = "_blank";
-      link.click();
       setIsDownloading(false);
       onNotify(`Downloading "${wallpaper.title}"...`);
     }
@@ -105,7 +87,7 @@ export default function WallpaperCard({
         {/* Top Left: Resolution & Orientation Badge */}
         <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 pointer-events-none">
           <span className="px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[10px] font-mono font-medium text-zinc-300 border border-white/10">
-            {wallpaper.resolution}
+            {wallpaper.resolution === "4K" ? "4K UHD" : `${wallpaper.dimensions.split(" ")[0]} px`}
           </span>
           {wallpaper.aspectRatio === "9:16" && (
             <span className="px-1.5 py-0.5 rounded-md bg-black/60 backdrop-blur-md text-[10px] text-zinc-400 border border-white/10">

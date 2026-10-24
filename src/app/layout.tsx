@@ -23,6 +23,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://wallora.art"),
   title: "Wallora — Premium AI-Enhanced Wallpapers for Desktop & Mobile",
   description:
     "Explore, preview in live device frames, and download curated 4K & 8K AI-enhanced wallpapers for mobile phones, laptops, and ultra-wide desktops.",
