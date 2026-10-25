@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
+import React, { createContext, useContext, useMemo, useCallback, useSyncExternalStore } from "react";
 import { Wallpaper, WALLPAPERS, CURATED_COLLECTIONS, CollectionItem } from "@/data/wallpapers";
 
 export interface UserCollectionItem {
@@ -35,6 +35,50 @@ interface CollectionsContextType {
 const STORAGE_KEY = "wallora_user_collections";
 const SYNC_EVENT = "wallora_user_collections_synced";
 
+const EMPTY_USER_COLLECTIONS: UserCollectionItem[] = [];
+
+let userCollectionsCache: UserCollectionItem[] = EMPTY_USER_COLLECTIONS;
+let lastRawUserColStorage: string | null = null;
+
+function getUserCollectionsSnapshot(): UserCollectionItem[] {
+  if (typeof window === "undefined") {
+    return EMPTY_USER_COLLECTIONS;
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw !== lastRawUserColStorage) {
+      lastRawUserColStorage = raw;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          userCollectionsCache = parsed;
+        } else {
+          userCollectionsCache = EMPTY_USER_COLLECTIONS;
+        }
+      } else {
+        userCollectionsCache = EMPTY_USER_COLLECTIONS;
+      }
+    }
+  } catch {
+    // Ignore
+  }
+  return userCollectionsCache;
+}
+
+function getServerUserCollectionsSnapshot(): UserCollectionItem[] {
+  return EMPTY_USER_COLLECTIONS;
+}
+
+function subscribeUserCollections(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", callback);
+  window.addEventListener(SYNC_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(SYNC_EVENT, callback);
+  };
+}
+
 const CollectionsContext = createContext<CollectionsContextType | null>(null);
 
 function slugify(text: string): string {
@@ -46,55 +90,17 @@ function slugify(text: string): string {
 }
 
 export function CollectionsProvider({ children }: { children: React.ReactNode }) {
-  const [userCollections, setUserCollections] = useState<UserCollectionItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch {
-      // Ignore
-    }
-    return [];
-  });
-
-  // Listen to cross-tab and custom events
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setUserCollections(parsed);
-          }
-        } catch {
-          // Ignore
-        }
-      }
-    };
-
-    const handleCustomSync = (e: Event) => {
-      const customEvent = e as CustomEvent<UserCollectionItem[]>;
-      if (customEvent.detail && Array.isArray(customEvent.detail)) {
-        setUserCollections(customEvent.detail);
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener(SYNC_EVENT, handleCustomSync);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener(SYNC_EVENT, handleCustomSync);
-    };
-  }, []);
+  const userCollections = useSyncExternalStore(
+    subscribeUserCollections,
+    getUserCollectionsSnapshot,
+    getServerUserCollectionsSnapshot
+  );
 
   const persist = useCallback((items: UserCollectionItem[]) => {
-    setUserCollections(items);
+    userCollectionsCache = items;
+    lastRawUserColStorage = JSON.stringify(items);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+      localStorage.setItem(STORAGE_KEY, lastRawUserColStorage);
       window.dispatchEvent(
         new CustomEvent<UserCollectionItem[]>(SYNC_EVENT, { detail: items })
       );

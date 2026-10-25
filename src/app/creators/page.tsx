@@ -415,7 +415,7 @@ export default function CreatorsPage() {
                 <Check className="w-8 h-8 text-emerald-400 mx-auto" />
                 <h4 className="text-sm font-bold text-white">Application Received!</h4>
                 <p className="text-xs text-zinc-300">
-                  We'll contact you at your provided portfolio with your creator badge and access key.
+                  We&apos;ll contact you at your provided portfolio with your creator badge and access key.
                 </p>
               </div>
             ) : (

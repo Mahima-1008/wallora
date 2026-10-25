@@ -31,7 +31,6 @@ export default function Navbar({
   searchQuery = "",
   setSearchQuery,
   favoritesCount,
-  onOpenFavorites,
 }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -147,6 +146,7 @@ export default function Navbar({
           {/* Favorites Button */}
           <Link
             href="/favorites"
+            suppressHydrationWarning
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
               pathname === "/favorites"
                 ? "bg-rose-500/15 text-rose-200 border border-rose-500/30 font-semibold"
@@ -162,7 +162,10 @@ export default function Navbar({
             />
             <span className="hidden xs:inline">Favorites</span>
             {count > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-rose-500/20 text-[10px] font-mono font-medium text-rose-300 border border-rose-500/30">
+              <span
+                suppressHydrationWarning
+                className="px-1.5 py-0.2 rounded-full bg-rose-500/20 text-[10px] font-mono font-medium text-rose-300 border border-rose-500/30"
+              >
                 {count}
               </span>
             )}
@@ -228,6 +231,7 @@ export default function Navbar({
               <Link
                 key={link.href}
                 href={link.href}
+                suppressHydrationWarning
                 onClick={() => setMobileMenuOpen(false)}
                 className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
                   isActive
@@ -236,7 +240,7 @@ export default function Navbar({
                 }`}
               >
                 <Icon className={`w-4 h-4 ${link.href === "/favorites" && count > 0 ? "text-rose-400 fill-rose-500/30" : "text-zinc-400"}`} />
-                <span>{link.label}</span>
+                <span suppressHydrationWarning>{link.label}</span>
               </Link>
             );
           })}

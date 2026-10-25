@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from "react";
+import React, { createContext, useContext, useMemo, useCallback, useSyncExternalStore } from "react";
 import { Wallpaper, WALLPAPERS } from "@/data/wallpapers";
 
 interface FavoritesContextType {
@@ -18,74 +18,65 @@ interface FavoritesContextType {
 const STORAGE_KEY = "wallora_favorites";
 const SYNC_EVENT = "wallora_favorites_synced";
 
+const DEFAULT_INITIAL_FAVORITES: string[] = ["wall-1", "wall-3", "wall-7"];
+
+let favoritesCache: string[] = DEFAULT_INITIAL_FAVORITES;
+let lastRawStorage: string | null = null;
+
+function getFavoritesSnapshot(): string[] {
+  if (typeof window === "undefined") {
+    return DEFAULT_INITIAL_FAVORITES;
+  }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw !== lastRawStorage) {
+      lastRawStorage = raw;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          favoritesCache = parsed;
+        } else {
+          favoritesCache = DEFAULT_INITIAL_FAVORITES;
+        }
+      } else {
+        favoritesCache = DEFAULT_INITIAL_FAVORITES;
+      }
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return favoritesCache;
+}
+
+function getServerFavoritesSnapshot(): string[] {
+  return DEFAULT_INITIAL_FAVORITES;
+}
+
+function subscribeFavorites(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener("storage", callback);
+  window.addEventListener(SYNC_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(SYNC_EVENT, callback);
+  };
+}
+
 const FavoritesContext = createContext<FavoritesContextType | null>(null);
 
-const DEFAULT_INITIAL_FAVORITES = ["wall-1", "wall-3", "wall-7"];
-
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
-  const [favorites, setFavorites] = useState<string[]>(() => {
-    if (typeof window === "undefined") return DEFAULT_INITIAL_FAVORITES;
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch {
-      // Ignore
-    }
-    return DEFAULT_INITIAL_FAVORITES;
-  });
-
-  const [isLoaded] = useState(true);
-
-  // Sync initial default favorites to storage on mount if empty
-  useEffect(() => {
-    try {
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_INITIAL_FAVORITES));
-      }
-    } catch {
-      // Ignore
-    }
-  }, []);
-
-  // Listen to cross-component and cross-tab storage events
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setFavorites(parsed);
-          }
-        } catch {
-          // Ignore
-        }
-      }
-    };
-
-    const handleCustomSync = (e: Event) => {
-      const customEvent = e as CustomEvent<string[]>;
-      if (customEvent.detail && Array.isArray(customEvent.detail)) {
-        setFavorites(customEvent.detail);
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    window.addEventListener(SYNC_EVENT, handleCustomSync);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      window.removeEventListener(SYNC_EVENT, handleCustomSync);
-    };
-  }, []);
+  const favorites = useSyncExternalStore(
+    subscribeFavorites,
+    getFavoritesSnapshot,
+    getServerFavoritesSnapshot
+  );
 
   // Helper to persist and broadcast changes
   const persistAndBroadcast = useCallback((newFavs: string[]) => {
-    setFavorites(newFavs);
+    favoritesCache = newFavs;
+    lastRawStorage = JSON.stringify(newFavs);
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newFavs));
+      localStorage.setItem(STORAGE_KEY, lastRawStorage);
       window.dispatchEvent(
         new CustomEvent<string[]>(SYNC_EVENT, { detail: newFavs })
       );
@@ -152,7 +143,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       clearAllFavorites,
       favoritesCount: favorites.length,
       favoriteWallpapers,
-      isLoaded,
+      isLoaded: true,
     }),
     [
       favorites,
@@ -162,7 +153,6 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       removeFavorite,
       clearAllFavorites,
       favoriteWallpapers,
-      isLoaded,
     ]
   );
 

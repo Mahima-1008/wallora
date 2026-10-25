@@ -193,6 +193,7 @@ export default function CollectionsPage() {
 
                 <button
                   type="button"
+                  suppressHydrationWarning
                   onClick={() => setActiveTab("my-collections")}
                   className={`px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-2 ${
                     activeTab === "my-collections"
@@ -201,7 +202,7 @@ export default function CollectionsPage() {
                   }`}
                 >
                   <FolderOpen className="w-3.5 h-3.5" />
-                  <span>My Collections ({userCollections.length})</span>
+                  <span suppressHydrationWarning>My Collections ({userCollections.length})</span>
                 </button>
               </div>
 

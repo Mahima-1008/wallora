@@ -185,19 +185,19 @@ export default function AboutPage() {
                 </thead>
                 <tbody className="divide-y divide-white/[0.04] text-zinc-300">
                   <tr>
-                    <td className="py-3.5 px-4 font-semibold text-white">Apple Studio Display 27"</td>
+                    <td className="py-3.5 px-4 font-semibold text-white">Apple Studio Display 27&quot;</td>
                     <td className="py-3.5 px-4 font-mono">5120 × 2880 (5K)</td>
                     <td className="py-3.5 px-4 font-mono">16:9</td>
                     <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-white/10 text-white">8K UHD</span></td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4 font-semibold text-white">MacBook Pro 16" Liquid Retina</td>
+                    <td className="py-3.5 px-4 font-semibold text-white">MacBook Pro 16&quot; Liquid Retina</td>
                     <td className="py-3.5 px-4 font-mono">3456 × 2234</td>
                     <td className="py-3.5 px-4 font-mono">16:10</td>
                     <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">4K / 8K</span></td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4 font-semibold text-white">Samsung Odyssey 34" Ultrawide</td>
+                    <td className="py-3.5 px-4 font-semibold text-white">Samsung Odyssey 34&quot; Ultrawide</td>
                     <td className="py-3.5 px-4 font-mono">3440 × 1440</td>
                     <td className="py-3.5 px-4 font-mono">21:9</td>
                     <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">Ultrawide</span></td>
@@ -268,7 +268,7 @@ export default function AboutPage() {
               Ready to Upgrade Your Screen?
             </h2>
             <p className="text-xs sm:text-sm text-zinc-400 max-w-md mx-auto">
-              Dive into our library of over 25+ curated 8K wallpapers and find your screen's new signature look.
+              Dive into our library of over 25+ curated 8K wallpapers and find your screen&apos;s new signature look.
             </p>
             <div className="flex items-center justify-center gap-3 pt-2">
               <Link

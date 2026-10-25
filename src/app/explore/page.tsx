@@ -157,23 +157,19 @@ function ExploreContent() {
   );
 
   // Sync external URL changes (e.g. browser back/forward or navigation from navbar)
-  useEffect(() => {
-    const q = searchParams.get("q") || "";
-    const cat = searchParams.get("category") || "all";
-    const orient = searchParams.get("orientation") || "all";
-    const res = searchParams.get("resolution") || "all";
-    const col = searchParams.get("color") || "all";
-    const dom = searchParams.get("dominant") === "true";
-    const sort = searchParams.get("sort") || "trending";
+  const [prevParamsString, setPrevParamsString] = useState(() => searchParams.toString());
+  const currentParamsString = searchParams.toString();
 
-    setSearchQuery(q);
-    setSelectedCategory(cat);
-    setSelectedOrientation(orient);
-    setSelectedResolution(res);
-    setSelectedColor(col);
-    setDominantOnly(dom);
-    setSortBy(sort);
-  }, [searchParams]);
+  if (prevParamsString !== currentParamsString) {
+    setPrevParamsString(currentParamsString);
+    setSearchQuery(searchParams.get("q") || "");
+    setSelectedCategory(searchParams.get("category") || "all");
+    setSelectedOrientation(searchParams.get("orientation") || "all");
+    setSelectedResolution(searchParams.get("resolution") || "all");
+    setSelectedColor(searchParams.get("color") || "all");
+    setDominantOnly(searchParams.get("dominant") === "true");
+    setSortBy(searchParams.get("sort") || "trending");
+  }
 
   // Combined Filtering Pipeline
   const filteredWallpapers = useMemo(() => {
@@ -647,7 +643,7 @@ function ExploreContent() {
 
               {searchQuery && (
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.08] text-white border border-white/10 text-xs">
-                  <span>Search: "{searchQuery}"</span>
+                  <span>Search: &quot;{searchQuery}&quot;</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -836,7 +832,7 @@ function ExploreContent() {
                     No wallpapers found
                   </h3>
                   <p className="text-xs text-[#8E909B] leading-relaxed">
-                    We couldn't find any wallpapers matching your active combination of filters and search keywords.
+                    We couldn&apos;t find any wallpapers matching your active combination of filters and search keywords.
                   </p>
                 </div>
 

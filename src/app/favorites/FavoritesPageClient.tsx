@@ -144,7 +144,10 @@ export default function FavoritesPageClient() {
               <span className="p-1.5 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
                 <Heart className="w-4 h-4 fill-rose-500" />
               </span>
-              <span className="px-2.5 py-0.5 rounded-full bg-white/[0.06] text-zinc-300 text-xs font-mono font-medium border border-white/10">
+              <span
+                suppressHydrationWarning
+                className="px-2.5 py-0.5 rounded-full bg-white/[0.06] text-zinc-300 text-xs font-mono font-medium border border-white/10"
+              >
                 {favoritesCount} {favoritesCount === 1 ? "Wallpaper" : "Wallpapers"}
               </span>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 text-xs font-mono border border-emerald-500/20">

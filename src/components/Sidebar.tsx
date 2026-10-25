@@ -28,7 +28,6 @@ interface SidebarProps {
 
 export default function Sidebar({
   favoritesCount,
-  onOpenFavorites: _onOpenFavorites,
   onOpenUpload,
   onOpenSettings,
   onOpenAIStudio,
@@ -81,6 +80,7 @@ export default function Sidebar({
         {/* Favorites item */}
         <Link
           href="/favorites"
+          suppressHydrationWarning
           className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-all group ${
             pathname === "/favorites"
               ? "bg-[#1E2230] text-white shadow-sm font-semibold"
@@ -98,7 +98,10 @@ export default function Sidebar({
             <span>Favorites</span>
           </div>
           {count > 0 && (
-            <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+            <span
+              suppressHydrationWarning
+              className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30"
+            >
               {count}
             </span>
           )}
