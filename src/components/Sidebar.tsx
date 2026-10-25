@@ -10,8 +10,6 @@ import {
   Grid,
   Folder,
   Heart,
-  UploadCloud,
-  Settings,
   Sparkles,
 } from "lucide-react";
 import { useFavorites } from "@/context/FavoritesContext";
@@ -21,15 +19,13 @@ interface SidebarProps {
   setActiveNav?: (nav: string) => void;
   favoritesCount?: number;
   onOpenFavorites?: () => void;
-  onOpenUpload: () => void;
-  onOpenSettings: () => void;
+  onOpenUpload?: () => void;
+  onOpenSettings?: () => void;
   onOpenAIStudio: () => void;
 }
 
 export default function Sidebar({
   favoritesCount,
-  onOpenUpload,
-  onOpenSettings,
   onOpenAIStudio,
 }: SidebarProps) {
   const pathname = usePathname();
@@ -118,27 +114,6 @@ export default function Sidebar({
             <span>AI Upscaler & Studio</span>
           </button>
         </div>
-      </div>
-
-      {/* Bottom Actions */}
-      <div className="pt-6 border-t border-white/[0.06] space-y-1.5">
-        <button
-          type="button"
-          onClick={onOpenUpload}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/[0.04] transition group"
-        >
-          <UploadCloud className="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition" />
-          <span>Upload</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/[0.04] transition group"
-        >
-          <Settings className="w-4 h-4 text-zinc-400 group-hover:text-amber-400 transition" />
-          <span>Settings</span>
-        </button>
       </div>
     </aside>
   );
