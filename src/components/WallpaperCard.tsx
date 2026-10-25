@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { Heart, Download, Eye, Check } from "lucide-react";
 import { Wallpaper } from "@/data/wallpapers";
 
 import { useFavorites } from "@/context/FavoritesContext";
 import { downloadWallpaper, getAvailableResolutions } from "@/lib/wallpaperUtils";
+import { getCreatorProfileHref } from "@/lib/creatorUtils";
 
 interface WallpaperCardProps {
   wallpaper: Wallpaper;
@@ -164,15 +166,29 @@ export default function WallpaperCard({
         </div>
       </div>
 
-      {/* Wallpaper Metadata: Title and Category clearly visible */}
+      {/* Wallpaper Metadata: Title and Category clearly visible, with direct link to Creator Profile */}
       <div className="mt-2.5 px-0.5 flex items-start justify-between gap-2">
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h3 className="text-sm font-medium text-[#F4F4F6] truncate group-hover:text-white transition">
             {wallpaper.title}
           </h3>
-          <p className="text-xs text-[#8E909B] capitalize mt-0.5">
-            {wallpaper.category}
-          </p>
+          <div className="flex items-center gap-1.5 mt-0.5 text-xs text-[#8E909B]">
+            <Link
+              href={getCreatorProfileHref(wallpaper.author.name)}
+              onClick={(e) => e.stopPropagation()}
+              className="inline-flex items-center gap-1 hover:text-amber-300 transition truncate group/author max-w-[150px]"
+              title={`View ${wallpaper.author.name}'s profile`}
+            >
+              <img
+                src={wallpaper.author.avatar}
+                alt={wallpaper.author.name}
+                className="w-3.5 h-3.5 rounded-full object-cover shrink-0"
+              />
+              <span className="truncate group-hover/author:underline">{wallpaper.author.name}</span>
+            </Link>
+            <span className="text-zinc-600">•</span>
+            <span className="capitalize shrink-0">{wallpaper.category}</span>
+          </div>
         </div>
 
         <span className="text-[11px] font-mono text-zinc-400 shrink-0 mt-0.5">

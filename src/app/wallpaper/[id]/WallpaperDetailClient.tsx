@@ -35,6 +35,7 @@ import {
   downloadWallpaper,
   slugifyTitle,
 } from "@/lib/wallpaperUtils";
+import { getCreatorProfileHref } from "@/lib/creatorUtils";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -557,15 +558,19 @@ export default function WallpaperDetailClient({
           <div className="lg:col-span-5 xl:col-span-4 bg-[#0D0F1C] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-6 shadow-2xl">
             {/* Creator Card */}
             <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
-              <div className="flex items-center gap-3">
+              <Link
+                href={getCreatorProfileHref(wallpaper.author.name)}
+                className="flex items-center gap-3 group hover:opacity-95 transition"
+                title={`View ${wallpaper.author.name}'s creator profile`}
+              >
                 <img
                   src={wallpaper.author.avatar}
                   alt={wallpaper.author.name}
-                  className="w-12 h-12 rounded-full object-cover border border-amber-400/40"
+                  className="w-12 h-12 rounded-full object-cover border border-amber-400/40 group-hover:border-amber-400 transition"
                 />
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-semibold text-white">
+                    <span className="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors">
                       {wallpaper.author.name}
                     </span>
                     {wallpaper.author.verified && (
@@ -574,9 +579,11 @@ export default function WallpaperDetailClient({
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-zinc-400">Wallora Artist</span>
+                  <span className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors flex items-center gap-1">
+                    View Artist Profile &rarr;
+                  </span>
                 </div>
-              </div>
+              </Link>
 
               <div className="text-right">
                 <span className="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block">

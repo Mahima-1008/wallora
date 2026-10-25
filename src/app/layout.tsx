@@ -42,6 +42,7 @@ export const metadata: Metadata = {
 
 import { FavoritesProvider } from "@/context/FavoritesContext";
 import { CollectionsProvider } from "@/context/CollectionsContext";
+import { FollowProvider } from "@/context/FollowContext";
 
 export default function RootLayout({
   children,
@@ -56,7 +57,9 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#090A0F] text-[#ededed] font-sans selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden">
         <FavoritesProvider>
           <CollectionsProvider>
-            {children}
+            <FollowProvider>
+              {children}
+            </FollowProvider>
           </CollectionsProvider>
         </FavoritesProvider>
       </body>

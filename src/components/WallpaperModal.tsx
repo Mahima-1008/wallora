@@ -25,6 +25,7 @@ import {
   Layers,
   FolderPlus,
 } from "lucide-react";
+import Link from "next/link";
 import { Wallpaper } from "@/data/wallpapers";
 import { useFavorites } from "@/context/FavoritesContext";
 import AddToCollectionModal from "./AddToCollectionModal";
@@ -35,6 +36,7 @@ import {
   downloadWallpaper,
   slugifyTitle,
 } from "@/lib/wallpaperUtils";
+import { getCreatorProfileHref } from "@/lib/creatorUtils";
 
 interface WallpaperModalProps {
   wallpaper: Wallpaper | null;
@@ -763,15 +765,20 @@ export default function WallpaperModal({
               <div className="space-y-5">
                 {/* Creator Profile & Download Metrics */}
                 <div className="flex items-center justify-between pb-4 border-b border-white/[0.08]">
-                  <div className="flex items-center gap-3">
+                  <Link
+                    href={getCreatorProfileHref(wallpaper.author.name)}
+                    onClick={onClose}
+                    className="flex items-center gap-3 group hover:opacity-95 transition"
+                    title={`View ${wallpaper.author.name}'s creator profile`}
+                  >
                     <img
                       src={wallpaper.author.avatar}
                       alt={wallpaper.author.name}
-                      className="w-11 h-11 rounded-full object-cover border border-amber-400/40"
+                      className="w-11 h-11 rounded-full object-cover border border-amber-400/40 group-hover:border-amber-400 transition"
                     />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm font-semibold text-white">
+                        <span className="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors">
                           {wallpaper.author.name}
                         </span>
                         {wallpaper.author.verified && (
@@ -780,9 +787,11 @@ export default function WallpaperModal({
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-zinc-400">Wallora Artist</span>
+                      <span className="text-xs text-zinc-400 group-hover:text-zinc-300 transition-colors flex items-center gap-1">
+                        View Artist Profile &rarr;
+                      </span>
                     </div>
-                  </div>
+                  </Link>
 
                   <div className="text-right">
                     <span className="text-[10px] uppercase tracking-wider font-mono text-zinc-400 block">
