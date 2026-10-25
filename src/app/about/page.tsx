@@ -5,35 +5,23 @@ import Link from "next/link";
 import {
   Sparkles,
   Shield,
-  Layers,
   Cpu,
   Monitor,
   Smartphone,
-  CheckCircle,
-  HelpCircle,
   ArrowRight,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
-import UploadModal from "@/components/UploadModal";
-import AIEnhancerModal from "@/components/AIEnhancerModal";
-import SettingsDrawer from "@/components/SettingsDrawer";
-import FavoritesModal from "@/components/FavoritesModal";
 import Footer from "@/components/Footer";
+import AIEnhancerModal from "@/components/AIEnhancerModal";
 import { WALLPAPERS } from "@/data/wallpapers";
+import { useFavorites } from "@/context/FavoritesContext";
 
 export default function AboutPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-
-  // Modals state
-  const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
-  const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [defaultFormat, setDefaultFormat] = useState("PNG");
-  const [autoPlayCarousel, setAutoPlayCarousel] = useState(true);
+  const { favoritesCount } = useFavorites();
 
   // Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -42,7 +30,7 @@ export default function AboutPage() {
   const faqs = [
     {
       q: "Are Wallora wallpapers free to download and use?",
-      a: "Yes! All wallpapers on Wallora are 100% free to download in up to 8K Ultra HD for personal and commercial desktop and mobile backgrounds. If you use them in public streaming overlays or videos, creator credit is appreciated.",
+      a: "Yes! All wallpapers on Wallora are 100% free to download in up to 8K Ultra HD for personal and desktop background use. If you use them in public streaming overlays or videos, creator credit is appreciated.",
     },
     {
       q: "What makes Wallora's AI wallpapers superior to standard stock backgrounds?",
@@ -54,279 +42,273 @@ export default function AboutPage() {
     },
     {
       q: "Can I publish my own wallpapers on Wallora?",
-      a: "Yes! Click the 'Upload' button in the sidebar or navbar to submit your creations. You can also apply for our Verified Creator Program on the Creators page to earn revenue share and showcase your artist portfolio.",
+      a: "Yes! You can apply for our Verified Creator Program on the Creators page to showcase your artist portfolio, receive drop promotion, and distribute native resolution desktop backgrounds.",
     },
     {
       q: "What resolutions are supported for multi-monitor setups?",
-      a: "Wallora supports standard 16:9 (3840×2160, 7680×4320), Apple MacBook 16:10, 21:9 Ultrawide (3440×1440), and 9:16 vertical mobile wallpapers (1170×2532).",
+      a: "Wallora supports standard 16:9 (3840×2160, 7680×4320), Apple MacBook 16:10 (3456×2234), 21:9 Ultrawide (3440×1440), and 9:16 vertical mobile wallpapers (1170×2532, 1320×2868).",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-[#090A0F] text-[#EDEDED] flex flex-col font-sans">
+    <div className="min-h-screen bg-[#0B0C10] text-[#F4F4F6] flex flex-col font-sans selection:bg-white/20 selection:text-white">
+      {/* Navbar */}
       <Navbar
-        onOpenUpload={() => setIsUploadOpen(true)}
+        favoritesCount={favoritesCount}
         onOpenAIStudio={() => setIsAIOpen(true)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
       />
 
-      <div className="max-w-[1920px] mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1 flex gap-6">
-        <Sidebar
-          onOpenUpload={() => setIsUploadOpen(true)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
-          onOpenAIStudio={() => setIsAIOpen(true)}
-        />
-
-        <main className="flex-1 min-w-0 py-8 pb-24 max-w-5xl mx-auto">
-          {/* Hero Statement */}
-          <div className="text-center space-y-4 mb-16">
-            <span className="text-[11px] font-bold tracking-[0.25em] text-amber-400 uppercase inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              The Wallora Philosophy
-            </span>
-            <h1
-              className="text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-white leading-[1.15]"
-              style={{ fontFamily: "var(--font-playfair)" }}
-            >
-              Redefining How You <br />
-              <span className="italic text-amber-200">Experience Your Screens</span>
-            </h1>
-            <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-              We spend over 9 hours a day in front of screens. Wallora replaces sterile defaults with breathtaking, AI-remastered visual sanctuaries.
-            </p>
-          </div>
-
-          {/* Pillars of Engineering Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-            <div className="p-8 rounded-3xl bg-[#121624] border border-white/[0.08] shadow-xl space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-                <Cpu className="w-6 h-6" />
+      {/* Main Container - Mirrored with Explore Page Width & Spacing */}
+      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex-1 space-y-12">
+        {/* 1. Header Hero Section (Mirrored with Explore Page) */}
+        <section className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[11px] font-semibold tracking-[0.2em] text-[#8E909B] uppercase">
+                  Platform Architecture &amp; Mission
+                </span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="text-[11px] font-mono text-zinc-400">
+                  Wallora Philosophy
+                </span>
               </div>
-              <h2
-                className="text-xl font-bold text-white tracking-tight"
+              <h1
+                className="text-3xl sm:text-4xl lg:text-5xl font-normal text-[#F4F4F6] tracking-tight leading-[1.15]"
                 style={{ fontFamily: "var(--font-playfair)" }}
               >
-                Neural 8K Vector Upscaling
-              </h2>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Standard upscalers blur textures or hallucinate strange artifacts. Wallora utilizes sub-pixel edge alignment and micro-contrast models to preserve raw organic detail on 4K, 5K Retina, and 8K displays.
+                Redefining How You{" "}
+                <span className="italic text-zinc-300">Experience Your Screens</span>
+              </h1>
+              <p className="text-xs sm:text-sm text-[#8E909B] mt-1.5 max-w-2xl leading-relaxed">
+                We spend over 9 hours a day in front of screens. Wallora replaces sterile defaults with breathtaking, AI-enhanced visual sanctuaries calibrated for retina displays, multi-monitor setups, and OLED workstations.
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-[#121624] border border-white/[0.08] shadow-xl space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400">
-                <Monitor className="w-6 h-6" />
+            <div className="flex items-center gap-2.5 shrink-0 self-start md:self-auto">
+              <Link
+                href="/explore"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-zinc-950 font-semibold text-xs hover:bg-zinc-200 transition active:scale-95 shadow-sm"
+              >
+                <span>Explore Catalog</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* 2. Pillars of Engineering Cards (Mirrored with Explore Card Styling) */}
+        <section className="space-y-4">
+          <div>
+            <span className="text-[11px] font-semibold tracking-[0.2em] text-[#8E909B] uppercase block mb-1">
+              Engineering Pillars
+            </span>
+            <h2
+              className="text-2xl sm:text-3xl font-normal text-[#F4F4F6]"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              Built for Modern Displays
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#13141C] border border-white/[0.08] hover:border-white/20 transition-all duration-300 shadow-lg space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-amber-400">
+                <Cpu className="w-5 h-5" />
               </div>
-              <h2
-                className="text-xl font-bold text-white tracking-tight"
+              <h3
+                className="text-lg font-normal text-[#F4F4F6] tracking-tight"
+                style={{ fontFamily: "var(--font-playfair)" }}
+              >
+                Neural 8K Vector Upscaling
+              </h3>
+              <p className="text-xs text-[#8E909B] leading-relaxed">
+                Standard upscalers blur textures or hallucinate artifacts. Wallora utilizes sub-pixel edge alignment and micro-contrast models to preserve raw organic detail on 4K, 5K Retina, and 8K displays.
+              </p>
+            </div>
+
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#13141C] border border-white/[0.08] hover:border-white/20 transition-all duration-300 shadow-lg space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-sky-400">
+                <Monitor className="w-5 h-5" />
+              </div>
+              <h3
+                className="text-lg font-normal text-[#F4F4F6] tracking-tight"
                 style={{ fontFamily: "var(--font-playfair)" }}
               >
                 OLED True-Black Calibration
-              </h2>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              </h3>
+              <p className="text-xs text-[#8E909B] leading-relaxed">
                 By clamping dark threshold pixels to absolute #000000, our OLED wallpapers physically turn off display pixels on OLED and Mini-LED monitors, delivering infinite contrast and reducing energy draw.
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-[#121624] border border-white/[0.08] shadow-xl space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
-                <Smartphone className="w-6 h-6" />
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#13141C] border border-white/[0.08] hover:border-white/20 transition-all duration-300 shadow-lg space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-emerald-400">
+                <Smartphone className="w-5 h-5" />
               </div>
-              <h2
-                className="text-xl font-bold text-white tracking-tight"
+              <h3
+                className="text-lg font-normal text-[#F4F4F6] tracking-tight"
                 style={{ fontFamily: "var(--font-playfair)" }}
               >
                 Live Device Studio Mockups
-              </h2>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Never guess how a wallpaper will look behind your icons or clock. Our real-time simulator allows you to test any artwork inside an authentic MacBook Pro, iPhone 16, or Studio Display frame before downloading.
+              </h3>
+              <p className="text-xs text-[#8E909B] leading-relaxed">
+                Never guess how a wallpaper will look behind your desktop icons or clock. Our real-time simulator allows you to test artwork inside authentic MacBook Pro, iPhone 16, or Studio Display frames before downloading.
               </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-[#121624] border border-white/[0.08] shadow-xl space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center text-violet-400">
-                <Shield className="w-6 h-6" />
+            <div className="p-6 sm:p-7 rounded-2xl bg-[#13141C] border border-white/[0.08] hover:border-white/20 transition-all duration-300 shadow-lg space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center text-violet-400">
+                <Shield className="w-5 h-5" />
               </div>
-              <h2
-                className="text-xl font-bold text-white tracking-tight"
+              <h3
+                className="text-lg font-normal text-[#F4F4F6] tracking-tight"
                 style={{ fontFamily: "var(--font-playfair)" }}
               >
                 100% Uncompressed Delivery
-              </h2>
-              <p className="text-xs text-zinc-400 leading-relaxed">
+              </h3>
+              <p className="text-xs text-[#8E909B] leading-relaxed">
                 We believe digital art deserves zero degradation. Wallora skips aggressive web compression pipelines, serving lossless PNG and high-bitrate WebP masters straight to your downloads folder.
               </p>
             </div>
           </div>
+        </section>
 
-          {/* Device Resolution Specifications Matrix */}
-          <section className="mb-16 p-8 rounded-3xl bg-[#111420] border border-white/[0.08] shadow-xl">
-            <div className="mb-6">
-              <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest block mb-1">
-                Display Engineering
-              </span>
-              <h2
-                className="text-2xl sm:text-3xl font-bold text-white tracking-tight"
-                style={{ fontFamily: "var(--font-playfair)" }}
-              >
-                Hardware Compatibility Matrix
-              </h2>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-white/10 text-zinc-400 uppercase text-[10px]">
-                    <th className="py-3 px-4 font-semibold">Device / Display</th>
-                    <th className="py-3 px-4 font-semibold">Native Resolution</th>
-                    <th className="py-3 px-4 font-semibold">Aspect Ratio</th>
-                    <th className="py-3 px-4 font-semibold">Recommended Format</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/[0.04] text-zinc-300">
-                  <tr>
-                    <td className="py-3.5 px-4 font-semibold text-white">Apple Studio Display 27&quot;</td>
-                    <td className="py-3.5 px-4 font-mono">5120 × 2880 (5K)</td>
-                    <td className="py-3.5 px-4 font-mono">16:9</td>
-                    <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-white/10 text-white">8K UHD</span></td>
-                  </tr>
-                  <tr>
-                    <td className="py-3.5 px-4 font-semibold text-white">MacBook Pro 16&quot; Liquid Retina</td>
-                    <td className="py-3.5 px-4 font-mono">3456 × 2234</td>
-                    <td className="py-3.5 px-4 font-mono">16:10</td>
-                    <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">4K / 8K</span></td>
-                  </tr>
-                  <tr>
-                    <td className="py-3.5 px-4 font-semibold text-white">Samsung Odyssey 34&quot; Ultrawide</td>
-                    <td className="py-3.5 px-4 font-mono">3440 × 1440</td>
-                    <td className="py-3.5 px-4 font-mono">21:9</td>
-                    <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300">Ultrawide</span></td>
-                  </tr>
-                  <tr>
-                    <td className="py-3.5 px-4 font-semibold text-white">iPhone 16 Pro Max</td>
-                    <td className="py-3.5 px-4 font-mono">1320 × 2868</td>
-                    <td className="py-3.5 px-4 font-mono">9:19.5</td>
-                    <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Mobile 9:16</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          {/* FAQ Accordion */}
-          <section className="mb-16">
-            <div className="mb-8 text-center">
-              <span className="text-[11px] font-bold text-amber-400 uppercase tracking-widest block mb-1">
-                Got Questions?
-              </span>
-              <h2
-                className="text-3xl font-bold text-white tracking-tight"
-                style={{ fontFamily: "var(--font-playfair)" }}
-              >
-                Frequently Asked Questions
-              </h2>
-            </div>
-
-            <div className="space-y-3">
-              {faqs.map((faq, idx) => {
-                const isOpen = openFaq === idx;
-                return (
-                  <div
-                    key={idx}
-                    className="rounded-2xl bg-[#121624] border border-white/[0.08] overflow-hidden transition"
-                  >
-                    <button
-                      onClick={() => setOpenFaq(isOpen ? null : idx)}
-                      className="w-full p-5 text-left flex items-center justify-between gap-4 hover:bg-white/[0.02]"
-                    >
-                      <span className="text-sm font-semibold text-white">
-                        {faq.q}
-                      </span>
-                      {isOpen ? (
-                        <ChevronUp className="w-4 h-4 text-amber-400 shrink-0" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0" />
-                      )}
-                    </button>
-                    {isOpen && (
-                      <div className="px-5 pb-5 pt-1 text-xs text-zinc-400 leading-relaxed border-t border-white/[0.04]">
-                        {faq.a}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Bottom CTA */}
-          <div className="text-center p-10 rounded-3xl bg-gradient-to-b from-[#141828] to-[#0E111B] border border-white/10 shadow-2xl space-y-4">
+        {/* 3. Hardware Compatibility Matrix */}
+        <section className="p-6 sm:p-8 rounded-2xl bg-[#13141C] border border-white/[0.08] shadow-lg space-y-5">
+          <div>
+            <span className="text-[11px] font-semibold text-[#8E909B] uppercase tracking-wider block mb-1">
+              Display Engineering
+            </span>
             <h2
-              className="text-2xl sm:text-3xl font-bold text-white"
+              className="text-xl sm:text-2xl font-normal text-[#F4F4F6] tracking-tight"
               style={{ fontFamily: "var(--font-playfair)" }}
             >
-              Ready to Upgrade Your Screen?
+              Hardware Compatibility Matrix
             </h2>
-            <p className="text-xs sm:text-sm text-zinc-400 max-w-md mx-auto">
-              Dive into our library of over 25+ curated 8K wallpapers and find your screen&apos;s new signature look.
-            </p>
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <Link
-                href="/explore"
-                className="px-6 py-3 rounded-full bg-white text-zinc-950 font-bold text-xs sm:text-sm hover:bg-zinc-200 transition shadow-lg flex items-center gap-2"
-              >
-                <span>Explore the Gallery</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
           </div>
-        </main>
-      </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-white/10 text-zinc-400 uppercase text-[10px]">
+                  <th className="py-3 px-4 font-semibold">Device / Display</th>
+                  <th className="py-3 px-4 font-semibold">Native Resolution</th>
+                  <th className="py-3 px-4 font-semibold">Aspect Ratio</th>
+                  <th className="py-3 px-4 font-semibold">Recommended Format</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04] text-zinc-300">
+                <tr>
+                  <td className="py-3.5 px-4 font-medium text-white">Apple Studio Display 27&quot;</td>
+                  <td className="py-3.5 px-4 font-mono text-zinc-400">5120 × 2880 (5K)</td>
+                  <td className="py-3.5 px-4 font-mono text-zinc-400">16:9</td>
+                  <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-white/10 text-white font-mono text-[11px]">8K UHD</span></td>
+                </tr>
+                <tr>
+                  <td className="py-3.5 px-4 font-medium text-white">MacBook Pro 16&quot; Liquid Retina</td>
+                  <td className="py-3.5 px-4 font-mono text-zinc-400">3456 × 2234</td>
+                  <td className="py-3.5 px-4 font-mono text-zinc-400">16:10</td>
+                  <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[11px]">4K / 8K</span></td>
+                </tr>
+                <tr>
+                  <td className="py-3.5 px-4 font-medium text-white">Samsung Odyssey 34&quot; Ultrawide</td>
+                  <td className="py-3.5 px-4 font-mono text-zinc-400">3440 × 1440</td>
+                  <td className="py-3.5 px-4 font-mono text-zinc-400">21:9</td>
+                  <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono text-[11px]">Ultrawide</span></td>
+                </tr>
+                <tr>
+                  <td className="py-3.5 px-4 font-medium text-white">iPhone 16 Pro Max</td>
+                  <td className="py-3.5 px-4 font-mono text-zinc-400">1320 × 2868</td>
+                  <td className="py-3.5 px-4 font-mono text-zinc-400">9:19.5</td>
+                  <td className="py-3.5 px-4"><span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[11px]">Mobile 9:16</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* 4. FAQ Accordion (Mirrored with Explore Card Styling) */}
+        <section className="space-y-4">
+          <div>
+            <span className="text-[11px] font-semibold text-[#8E909B] uppercase tracking-wider block mb-1">
+              Common Inquiries
+            </span>
+            <h2
+              className="text-2xl sm:text-3xl font-normal text-[#F4F4F6] tracking-tight"
+              style={{ fontFamily: "var(--font-playfair)" }}
+            >
+              Frequently Asked Questions
+            </h2>
+          </div>
+
+          <div className="space-y-2.5">
+            {faqs.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div
+                  key={idx}
+                  className="rounded-xl bg-[#13141C] border border-white/[0.08] overflow-hidden transition"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 hover:bg-white/[0.02] transition"
+                  >
+                    <span className="text-sm font-medium text-[#F4F4F6]">
+                      {faq.q}
+                    </span>
+                    {isOpen ? (
+                      <ChevronUp className="w-4 h-4 text-zinc-400 shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0" />
+                    )}
+                  </button>
+                  {isOpen && (
+                    <div className="px-5 pb-5 pt-1 text-xs text-[#8E909B] leading-relaxed border-t border-white/[0.04]">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 5. Bottom CTA (Mirrored with Explore Cards) */}
+        <section className="rounded-2xl bg-[#13141C] border border-white/[0.08] p-8 sm:p-10 text-center space-y-3.5 shadow-lg">
+          <h2
+            className="text-2xl sm:text-3xl font-normal text-[#F4F4F6]"
+            style={{ fontFamily: "var(--font-playfair)" }}
+          >
+            Ready to Upgrade Your Screen?
+          </h2>
+          <p className="text-xs sm:text-sm text-[#8E909B] max-w-md mx-auto leading-relaxed">
+            Dive into our library of over 25+ curated 8K wallpapers and find your screen&apos;s new signature look.
+          </p>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <Link
+              href="/explore"
+              className="px-6 py-2.5 rounded-full bg-white text-zinc-950 font-semibold text-xs hover:bg-zinc-200 transition shadow-sm flex items-center gap-2 active:scale-95"
+            >
+              <span>Explore the Gallery</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      {/* AI Studio Modal */}
+      {isAIOpen && (
+        <AIEnhancerModal
+          isOpen={isAIOpen}
+          onClose={() => setIsAIOpen(false)}
+          wallpapers={WALLPAPERS}
+          onNotify={notify}
+        />
+      )}
 
       <Footer onNotify={notify} />
-
-      {/* Modals */}
-      <UploadModal
-        isOpen={isUploadOpen}
-        onClose={() => setIsUploadOpen(false)}
-        onAddWallpaper={() => {}}
-        onNotify={notify}
-      />
-
-      <AIEnhancerModal
-        isOpen={isAIOpen}
-        onClose={() => setIsAIOpen(false)}
-        wallpapers={WALLPAPERS}
-        onNotify={notify}
-      />
-
-      <FavoritesModal
-        isOpen={isFavoritesOpen}
-        onClose={() => setIsFavoritesOpen(false)}
-        favoriteWallpapers={[]}
-        onToggleFavorite={() => {}}
-        onSelectWallpaper={() => {}}
-        onClearFavorites={() => {}}
-        onNotify={notify}
-      />
-
-      <SettingsDrawer
-        isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
-        defaultFormat={defaultFormat}
-        setDefaultFormat={setDefaultFormat}
-        autoPlayCarousel={autoPlayCarousel}
-        setAutoPlayCarousel={setAutoPlayCarousel}
-        onClearFavorites={() => {}}
-        onNotify={notify}
-      />
-
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#141826]/95 border border-white/15 text-white text-xs font-medium shadow-[0_10px_35px_rgba(0,0,0,0.8)] backdrop-blur-xl animate-in slide-in-from-bottom-5">
-          <div className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
     </div>
   );
 }
