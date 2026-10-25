@@ -2,28 +2,32 @@
 
 import React, { useState } from "react";
 import { Heart, Download, Eye, Check } from "lucide-react";
-import confetti from "canvas-confetti";
 import { Wallpaper } from "@/data/wallpapers";
 
+import { useFavorites } from "@/context/FavoritesContext";
 import { downloadWallpaper, getAvailableResolutions } from "@/lib/wallpaperUtils";
 
 interface WallpaperCardProps {
   wallpaper: Wallpaper;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
   onSelect: (wallpaper: Wallpaper) => void;
-  onNotify: (msg: string) => void;
+  onNotify?: (msg: string) => void;
 }
 
 export default function WallpaperCard({
   wallpaper,
-  isFavorite,
+  isFavorite: isFavoriteProp,
   onToggleFavorite,
   onSelect,
   onNotify,
 }: WallpaperCardProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+
+  // Centralized favorites context fallback
+  const { isFavorite: checkFavorite, toggleFavorite: contextToggleFavorite } = useFavorites();
+  const isFav = isFavoriteProp !== undefined ? isFavoriteProp : checkFavorite(wallpaper.id);
 
   // Trigger real file download using wallpaperUtils
   const handleDownload = async (e: React.MouseEvent) => {
@@ -36,7 +40,7 @@ export default function WallpaperCard({
       await downloadWallpaper(wallpaper, targetVersion);
 
       setDownloadSuccess(true);
-      onNotify(`Downloaded "${wallpaper.title}" (${targetVersion.dimensions})`);
+      onNotify?.(`Downloaded "${wallpaper.title}" (${targetVersion.dimensions})`);
 
       setTimeout(() => {
         setDownloadSuccess(false);
@@ -44,18 +48,19 @@ export default function WallpaperCard({
       }, 2000);
     } catch {
       setIsDownloading(false);
-      onNotify(`Downloading "${wallpaper.title}"...`);
+      onNotify?.(`Downloading "${wallpaper.title}"...`);
     }
   };
 
-  const handleFavoriteClick = (e: React.MouseEvent) => {
+  const handleFavoriteClick = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation();
-    onToggleFavorite(wallpaper.id);
-    if (!isFavorite) {
-      onNotify(`Saved "${wallpaper.title}" to Favorites`);
+    if (onToggleFavorite) {
+      onToggleFavorite(wallpaper.id);
     } else {
-      onNotify(`Removed "${wallpaper.title}" from Favorites`);
+      contextToggleFavorite(wallpaper.id);
     }
+    const nextState = !isFav;
+    onNotify?.(nextState ? `Saved "${wallpaper.title}" to Favorites` : `Removed "${wallpaper.title}" from Favorites`);
   };
 
   return (
@@ -100,16 +105,24 @@ export default function WallpaperCard({
         <button
           type="button"
           onClick={handleFavoriteClick}
-          className={`absolute top-2.5 right-2.5 p-2 rounded-full backdrop-blur-md transition-all duration-200 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
-            isFavorite
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleFavoriteClick(e);
+            }
+          }}
+          className={`absolute top-2.5 right-2.5 p-2 rounded-full backdrop-blur-md transition-all duration-200 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400 ${
+            isFav
               ? "bg-rose-500/20 text-rose-400 border border-rose-500/40 scale-105"
               : "bg-black/50 hover:bg-black/80 text-zinc-400 hover:text-white border border-white/10"
           }`}
-          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+          aria-label={isFav ? `Remove ${wallpaper.title} from favorites` : `Save ${wallpaper.title} to favorites`}
+          aria-pressed={isFav}
+          title={isFav ? "Remove from favorites" : "Save to favorites"}
         >
           <Heart
             className={`w-3.5 h-3.5 transition-transform active:scale-125 ${
-              isFavorite ? "fill-rose-400" : ""
+              isFav ? "fill-rose-400 text-rose-400" : ""
             }`}
           />
         </button>

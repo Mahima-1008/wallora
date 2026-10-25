@@ -14,11 +14,12 @@ import {
   Settings,
   Sparkles,
 } from "lucide-react";
+import { useFavorites } from "@/context/FavoritesContext";
 
 interface SidebarProps {
   activeNav?: string;
   setActiveNav?: (nav: string) => void;
-  favoritesCount: number;
+  favoritesCount?: number;
   onOpenFavorites?: () => void;
   onOpenUpload: () => void;
   onOpenSettings: () => void;
@@ -27,12 +28,14 @@ interface SidebarProps {
 
 export default function Sidebar({
   favoritesCount,
-  onOpenFavorites,
+  onOpenFavorites: _onOpenFavorites,
   onOpenUpload,
   onOpenSettings,
   onOpenAIStudio,
 }: SidebarProps) {
   const pathname = usePathname();
+  const { favoritesCount: liveFavoritesCount } = useFavorites();
+  const count = favoritesCount !== undefined ? favoritesCount : liveFavoritesCount;
 
   const mainNavItems = [
     { id: "home", label: "Home", icon: Home, href: "/" },
@@ -76,21 +79,30 @@ export default function Sidebar({
         })}
 
         {/* Favorites item */}
-        <button
-          type="button"
-          onClick={onOpenFavorites}
-          className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04] transition-all group"
+        <Link
+          href="/favorites"
+          className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+            pathname === "/favorites"
+              ? "bg-[#1E2230] text-white shadow-sm font-semibold"
+              : "text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04]"
+          }`}
         >
           <div className="flex items-center gap-3">
-            <Heart className="w-4 h-4 text-zinc-400 group-hover:text-rose-400 transition" />
+            <Heart
+              className={`w-4 h-4 transition-transform group-hover:scale-110 ${
+                pathname === "/favorites" || count > 0
+                  ? "fill-rose-500 text-rose-500"
+                  : "text-zinc-400 group-hover:text-rose-400"
+              }`}
+            />
             <span>Favorites</span>
           </div>
-          {favoritesCount > 0 && (
+          {count > 0 && (
             <span className="px-2 py-0.5 text-[11px] font-bold rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-              {favoritesCount}
+              {count}
             </span>
           )}
-        </button>
+        </Link>
 
         {/* AI Enhancer highlight in sidebar */}
         <div className="pt-4">

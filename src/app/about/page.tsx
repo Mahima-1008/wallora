@@ -65,8 +65,6 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#090A0F] text-[#EDEDED] flex flex-col font-sans">
       <Navbar
-        favoritesCount={0}
-        onOpenFavorites={() => setIsFavoritesOpen(true)}
         onOpenUpload={() => setIsUploadOpen(true)}
         onOpenAIStudio={() => setIsAIOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
@@ -74,8 +72,6 @@ export default function AboutPage() {
 
       <div className="max-w-[1920px] mx-auto w-full px-4 sm:px-6 lg:px-8 flex-1 flex gap-6">
         <Sidebar
-          favoritesCount={0}
-          onOpenFavorites={() => setIsFavoritesOpen(true)}
           onOpenUpload={() => setIsUploadOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
           onOpenAIStudio={() => setIsAIOpen(true)}

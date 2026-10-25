@@ -13,12 +13,13 @@ import {
   Users,
   Info,
 } from "lucide-react";
+import { useFavorites } from "@/context/FavoritesContext";
 
 interface NavbarProps {
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
-  favoritesCount: number;
-  onOpenFavorites: () => void;
+  favoritesCount?: number;
+  onOpenFavorites?: () => void;
   onOpenUpload?: () => void;
   onOpenAIStudio?: () => void;
   onOpenSettings?: () => void;
@@ -34,6 +35,9 @@ export default function Navbar({
 }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { favoritesCount: liveFavoritesCount } = useFavorites();
+  const count = favoritesCount !== undefined ? favoritesCount : liveFavoritesCount;
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(searchQuery);
@@ -141,26 +145,28 @@ export default function Navbar({
           </button>
 
           {/* Favorites Button */}
-          <button
-            type="button"
-            onClick={onOpenFavorites}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#14161F] hover:bg-white/[0.08] text-zinc-300 hover:text-white border border-white/[0.08] transition text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+          <Link
+            href="/favorites"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition text-xs font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${
+              pathname === "/favorites"
+                ? "bg-rose-500/15 text-rose-200 border border-rose-500/30 font-semibold"
+                : "bg-[#14161F] hover:bg-white/[0.08] text-zinc-300 hover:text-white border border-white/[0.08]"
+            }`}
             title="Saved Favorites"
+            aria-label={`View your saved favorites (${count} items)`}
           >
             <Heart
               className={`w-3.5 h-3.5 transition-colors ${
-                favoritesCount > 0
-                  ? "fill-zinc-200 text-zinc-200"
-                  : "text-zinc-400"
+                count > 0 ? "fill-rose-500 text-rose-500" : "text-zinc-400"
               }`}
             />
             <span className="hidden xs:inline">Favorites</span>
-            {favoritesCount > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-white/[0.12] text-[10px] font-mono font-medium text-white">
-                {favoritesCount}
+            {count > 0 && (
+              <span className="px-1.5 py-0.2 rounded-full bg-rose-500/20 text-[10px] font-mono font-medium text-rose-300 border border-rose-500/30">
+                {count}
               </span>
             )}
-          </button>
+          </Link>
 
           {/* Mobile Menu Toggle Button */}
           <button
@@ -207,7 +213,11 @@ export default function Navbar({
           aria-label="Mobile Navigation"
           className="md:hidden border-t border-white/[0.06] bg-[#0E1017] px-4 py-4 space-y-1 animate-in fade-in"
         >
-          {navLinks.map((link) => {
+          {/* Navigation links including Favorites in mobile */}
+          {[
+            ...navLinks,
+            { label: `Favorites (${count})`, href: "/favorites", icon: Heart },
+          ].map((link) => {
             const Icon = link.icon;
             const isActive =
               link.href === "/"
@@ -225,7 +235,7 @@ export default function Navbar({
                     : "text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.04]"
                 }`}
               >
-                <Icon className="w-4 h-4 text-zinc-400" />
+                <Icon className={`w-4 h-4 ${link.href === "/favorites" && count > 0 ? "text-rose-400 fill-rose-500/30" : "text-zinc-400"}`} />
                 <span>{link.label}</span>
               </Link>
             );

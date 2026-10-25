@@ -26,6 +26,7 @@ import FavoritesModal from "@/components/FavoritesModal";
 import Footer from "@/components/Footer";
 import { CREATORS, Creator } from "@/data/creators";
 import { WALLPAPERS, Wallpaper } from "@/data/wallpapers";
+import { useFavorites } from "@/context/FavoritesContext";
 
 export default function CreatorsPage() {
   const [creators, setCreators] = useState<Creator[]>(CREATORS);
@@ -33,7 +34,13 @@ export default function CreatorsPage() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [followedIds, setFollowedIds] = useState<string[]>(["creator-1", "creator-4"]);
   const [selectedWallpaper, setSelectedWallpaper] = useState<Wallpaper | null>(null);
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const {
+    favorites,
+    favoritesCount,
+    favoriteWallpapers,
+    toggleFavorite,
+    clearAllFavorites,
+  } = useFavorites();
   const [showApplyModal, setShowApplyModal] = useState(false);
 
   // Application form state
@@ -60,27 +67,6 @@ export default function CreatorsPage() {
     const t = setTimeout(() => setToastMessage(null), 3200);
     return () => clearTimeout(t);
   }, [toastMessage]);
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("wallora_favorites");
-      if (saved) setFavorites(JSON.parse(saved));
-    } catch {
-      // Ignore
-    }
-  }, []);
-
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
-      try {
-        localStorage.setItem("wallora_favorites", JSON.stringify(next));
-      } catch {
-        // Ignore
-      }
-      return next;
-    });
-  };
 
   const toggleFollow = (creatorId: string, creatorName: string) => {
     setFollowedIds((prev) => {
@@ -130,10 +116,6 @@ export default function CreatorsPage() {
       setAppliedSuccess(false);
     }, 2000);
   };
-
-  const favoriteWallpapers = useMemo(() => {
-    return WALLPAPERS.filter((w) => favorites.includes(w.id));
-  }, [favorites]);
 
   return (
     <div className="min-h-screen bg-[#090A0F] text-[#EDEDED] flex flex-col font-sans">
@@ -544,7 +526,7 @@ export default function CreatorsPage() {
           setIsFavoritesOpen(false);
           setSelectedWallpaper(w);
         }}
-        onClearFavorites={() => setFavorites([])}
+        onClearFavorites={clearAllFavorites}
         onNotify={notify}
       />
 
@@ -555,7 +537,7 @@ export default function CreatorsPage() {
         setDefaultFormat={setDefaultFormat}
         autoPlayCarousel={autoPlayCarousel}
         setAutoPlayCarousel={setAutoPlayCarousel}
-        onClearFavorites={() => setFavorites([])}
+        onClearFavorites={clearAllFavorites}
         onNotify={notify}
       />
 

@@ -906,60 +906,88 @@ export const WALLPAPERS: Wallpaper[] = [
 
 export interface CollectionItem {
   id: string;
+  slug: string;
   title: string;
   subtitle: string;
-  wallpaperCount: number;
+  description: string;
   coverImage: string;
   tags: string[];
+  wallpaperIds: string[];
+  wallpaperCount: number;
+  isCurated: boolean;
 }
 
 export const CURATED_COLLECTIONS: CollectionItem[] = [
   {
-    id: "col-1",
-    title: "Cyberpunk Tokyo 2099",
-    subtitle: "Neon-soaked alleys, holographic rain, and high-tech dystopias",
-    wallpaperCount: 16,
-    coverImage: "/wallpapers/cyberpunk_anime.jpg",
-    tags: ["Neon", "Anime", "Sci-Fi", "Rain"],
+    id: "col-minimal-workspaces",
+    slug: "minimal-workspaces",
+    title: "Minimal Workspaces",
+    subtitle: "Distraction-free desk setups, warm study lights, and clean geometry",
+    description: "Designed for focused productivity and calm desktop aesthetics, featuring warm study lamps, clean desktop surfaces, and elegant minimalist geometry.",
+    coverImage: "/wallpapers/cozy_desk_sunset.jpg",
+    tags: ["Minimalist", "Desk", "Study", "Clean", "Lo-Fi"],
+    wallpaperIds: ["wall-2", "wall-6", "wall-12", "wall-27", "wall-7"],
+    wallpaperCount: 5,
+    isCurated: true,
   },
   {
-    id: "col-2",
-    title: "Lo-Fi Dusk & Sunset Havens",
-    subtitle: "Warm study lamps, steaming coffee, and skyline window views",
-    wallpaperCount: 24,
-    coverImage: "/wallpapers/hero_sunset_room.jpg",
-    tags: ["Aesthetic", "Cozy", "Golden Hour", "Study"],
-  },
-  {
-    id: "col-3",
-    title: "OLED Pure Blacks & Deep Cosmos",
-    subtitle: "Pixel-perfect true blacks optimized for OLED & mini-LED panels",
-    wallpaperCount: 19,
-    coverImage: "/wallpapers/bioluminescent_jellyfish.jpg",
-    tags: ["OLED", "Minimal", "Cosmos", "Dark"],
-  },
-  {
-    id: "col-4",
-    title: "Nordic Solitude & Alpine Waters",
-    subtitle: "Pristine mountain reflections, silent fjords, and pine forests",
-    wallpaperCount: 22,
+    id: "col-nature-escapes",
+    slug: "nature-escapes",
+    title: "Nature Escapes",
+    subtitle: "Pristine alpine lakes, tranquil ocean shores, and whispering pine forests",
+    description: "Immerse yourself in untouched landscapes, from crystal clear mountain reflections to pastel sunset tides and lush enchanted waterfalls.",
     coverImage: "/wallpapers/mountain_lake.jpg",
-    tags: ["Nature", "Alpine", "Reflections", "Nordic"],
+    tags: ["Nature", "Mountains", "Alpine", "Sunset", "Forest"],
+    wallpaperIds: ["wall-1", "wall-4", "wall-14", "wall-20", "wall-26"],
+    wallpaperCount: 5,
+    isCurated: true,
   },
   {
-    id: "col-5",
-    title: "Rainy Asphalt & Classic Motors",
-    subtitle: "Reflections of wet streetlights on classic air-cooled silhouettes",
-    wallpaperCount: 14,
-    coverImage: "/wallpapers/vintage_porsche_rain.jpg",
-    tags: ["Porsche", "Cars", "Rain", "Wet Asphalt"],
+    id: "col-dark-wallpapers",
+    slug: "dark-wallpapers",
+    title: "Dark Wallpapers",
+    subtitle: "Deep obsidian tones and true OLED contrasts that save battery and reduce eye strain",
+    description: "Pixel-perfect true blacks and high contrast lighting tailored for late-night workspaces, OLED screens, and sleek stealth setups.",
+    coverImage: "/wallpapers/night_city_crescent.jpg",
+    tags: ["Dark", "OLED", "Minimal", "Night", "Obsidian"],
+    wallpaperIds: ["wall-3", "wall-10", "wall-17", "wall-27", "wall-9"],
+    wallpaperCount: 5,
+    isCurated: true,
   },
   {
-    id: "col-6",
-    title: "Deep Cosmos & Celestial Rifts",
-    subtitle: "Infrared stellar nurseries, event horizons, and star dust",
-    wallpaperCount: 18,
-    coverImage: "/wallpapers/pillars_of_creation_gold.jpg",
-    tags: ["James Webb", "Space", "Nebula", "Cosmos"],
+    id: "col-japanese-streets",
+    slug: "japanese-streets",
+    title: "Japanese Streets",
+    subtitle: "From historic Kyoto blossom alleys to glowing Tokyo neon crossings",
+    description: "Experience the atmospheric blend of traditional Japanese architecture, glowing red lanterns, spring sakura blossoms, and futuristic cyberpunk cityscapes.",
+    coverImage: "/wallpapers/cherry_blossom_street.jpg",
+    tags: ["Japan", "Kyoto", "Tokyo", "Sakura", "Neon"],
+    wallpaperIds: ["wall-5", "wall-8", "wall-13", "wall-23"],
+    wallpaperCount: 4,
+    isCurated: true,
+  },
+  {
+    id: "col-space-and-astronomy",
+    slug: "space-and-astronomy",
+    title: "Space and Astronomy",
+    subtitle: "Cosmic nebulas, gravitational singularities, and golden pillars of creation",
+    description: "Deep cosmos photography and astronomical visions of star-forming nebulae, lunar nocturnes, and deep space event horizons.",
+    coverImage: "/wallpapers/cosmic_nebula.jpg",
+    tags: ["Space", "Cosmos", "Nebula", "Astronomy", "James Webb"],
+    wallpaperIds: ["wall-11", "wall-25", "wall-3", "wall-23"],
+    wallpaperCount: 4,
+    isCurated: true,
+  },
+  {
+    id: "col-cozy-interiors",
+    slug: "cozy-interiors",
+    title: "Cozy Interiors",
+    subtitle: "Steaming coffee cups, rain-streaked window panes, and warm ambient havens",
+    description: "Gentle lo-fi living spaces, warm golden hour sunbeams, rain tapping on cafe glass, and serene indoor sanctuaries.",
+    coverImage: "/wallpapers/hero_sunset_room.jpg",
+    tags: ["Cozy", "Interiors", "Lo-Fi", "Coffee", "Warm"],
+    wallpaperIds: ["wall-2", "wall-7", "wall-24", "wall-6"],
+    wallpaperCount: 4,
+    isCurated: true,
   },
 ];

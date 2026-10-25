@@ -19,6 +19,7 @@ import {
   Wallpaper,
   CollectionItem,
 } from "@/data/wallpapers";
+import { useFavorites } from "@/context/FavoritesContext";
 
 export default function HomePage() {
   const [wallpapers, setWallpapers] = useState<Wallpaper[]>(WALLPAPERS);
@@ -26,8 +27,15 @@ export default function HomePage() {
   const [deviceFilter, setDeviceFilter] = useState<string>("all");
   const [resolutionFilter, setResolutionFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedWallpaper, setSelectedWallpaper] = useState<Wallpaper | null>(null);
+
+  const {
+    favorites,
+    favoritesCount,
+    favoriteWallpapers,
+    toggleFavorite,
+    clearAllFavorites,
+  } = useFavorites();
 
   // Modals state
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -53,43 +61,6 @@ export default function HomePage() {
     }, 3200);
     return () => clearTimeout(timer);
   }, [toastMessage]);
-
-  // Load & persist favorites from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("wallora_favorites");
-      if (saved) {
-        setFavorites(JSON.parse(saved));
-      } else {
-        const initialFavs = ["wall-1", "wall-3", "wall-7"];
-        setFavorites(initialFavs);
-        localStorage.setItem("wallora_favorites", JSON.stringify(initialFavs));
-      }
-    } catch {
-      // Ignore storage errors
-    }
-  }, []);
-
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
-      try {
-        localStorage.setItem("wallora_favorites", JSON.stringify(next));
-      } catch {
-        // Ignore
-      }
-      return next;
-    });
-  };
-
-  const clearAllFavorites = () => {
-    setFavorites([]);
-    try {
-      localStorage.removeItem("wallora_favorites");
-    } catch {
-      // Ignore
-    }
-  };
 
   const handleAddWallpaper = (newWall: Wallpaper) => {
     setWallpapers((prev) => [newWall, ...prev]);
@@ -138,10 +109,6 @@ export default function HomePage() {
 
     return result;
   }, [wallpapers, searchQuery, selectedCategory, deviceFilter, resolutionFilter]);
-
-  const favoriteWallpapers = useMemo(() => {
-    return wallpapers.filter((w) => favorites.includes(w.id));
-  }, [wallpapers, favorites]);
 
   const handleResetExploreFilters = () => {
     setSelectedCategory("all");

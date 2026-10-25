@@ -40,6 +40,9 @@ export const metadata: Metadata = {
   authors: [{ name: "Wallora Studios" }],
 };
 
+import { FavoritesProvider } from "@/context/FavoritesContext";
+import { CollectionsProvider } from "@/context/CollectionsContext";
+
 export default function RootLayout({
   children,
 }: {
@@ -51,7 +54,11 @@ export default function RootLayout({
       className={`${jakartaSans.variable} ${playfairDisplay.variable} dark antialiased`}
     >
       <body className="min-h-screen bg-[#090A0F] text-[#ededed] font-sans selection:bg-amber-500/30 selection:text-amber-200 overflow-x-hidden">
-        {children}
+        <FavoritesProvider>
+          <CollectionsProvider>
+            {children}
+          </CollectionsProvider>
+        </FavoritesProvider>
       </body>
     </html>
   );

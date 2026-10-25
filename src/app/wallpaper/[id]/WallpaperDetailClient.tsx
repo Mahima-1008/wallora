@@ -23,8 +23,11 @@ import {
   ShieldCheck,
   Layers,
   Home,
+  FolderPlus,
 } from "lucide-react";
 import { Wallpaper } from "@/data/wallpapers";
+import { useFavorites } from "@/context/FavoritesContext";
+import AddToCollectionModal from "@/components/AddToCollectionModal";
 import {
   WallpaperDownloadVersion,
   DownloadProgress,
@@ -74,42 +77,18 @@ export default function WallpaperDetailClient({
   const [downloadProgress, setDownloadProgress] = useState<DownloadProgress | null>(null);
   const [downloadSuccessMessage, setDownloadSuccessMessage] = useState<string | null>(null);
 
-  // Favorites state synced with localStorage
-  const [isFavorite, setIsFavorite] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    try {
-      const saved = localStorage.getItem("wallora_favorites");
-      if (saved) {
-        const favs: string[] = JSON.parse(saved);
-        return favs.includes(wallpaper.id);
-      }
-    } catch {
-      // Ignore
-    }
-    return false;
-  });
+  // Centralized favorites context
+  const { isFavorite: checkFavorite, toggleFavorite: contextToggleFavorite, favoritesCount } = useFavorites();
+  const isFavorite = checkFavorite(wallpaper.id);
 
   const toggleFavorite = () => {
-    try {
-      const saved = localStorage.getItem("wallora_favorites");
-      let favs: string[] = saved ? JSON.parse(saved) : [];
-      if (favs.includes(wallpaper.id)) {
-        favs = favs.filter((id) => id !== wallpaper.id);
-        setIsFavorite(false);
-        notify(`Removed "${wallpaper.title}" from favorites`);
-      } else {
-        favs.push(wallpaper.id);
-        setIsFavorite(true);
-        notify(`Saved "${wallpaper.title}" to favorites`);
-      }
-      localStorage.setItem("wallora_favorites", JSON.stringify(favs));
-    } catch {
-      // Ignore
-    }
+    const nextState = contextToggleFavorite(wallpaper.id);
+    notify(nextState ? `Saved "${wallpaper.title}" to favorites` : `Removed "${wallpaper.title}" from favorites`);
   };
 
   // Toast notification
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isAddToColOpen, setIsAddToColOpen] = useState(false);
   const notify = (msg: string) => setToastMessage(msg);
 
   useEffect(() => {
@@ -223,7 +202,7 @@ export default function WallpaperDetailClient({
         onOpenAIStudio={() => {}}
         onOpenFavorites={() => {}}
         onOpenSettings={() => {}}
-        favoritesCount={0}
+        favoritesCount={favoritesCount}
       />
 
       {/* Breadcrumb Navigation Bar */}
@@ -313,10 +292,23 @@ export default function WallpaperDetailClient({
               onClick={handleShare}
               className="p-2.5 rounded-xl bg-white/[0.05] hover:bg-white/10 text-zinc-300 hover:text-white border border-white/10 transition"
               title="Share Wallpaper"
+              aria-label="Share wallpaper"
             >
               <Share2 className="w-4 h-4" />
             </button>
 
+            {/* Save to Collection */}
+            <button
+              type="button"
+              onClick={() => setIsAddToColOpen(true)}
+              className="p-2.5 rounded-xl border bg-white/[0.05] hover:bg-white/10 text-zinc-300 hover:text-white border-white/10 transition flex items-center gap-1.5"
+              title="Save to Collection"
+              aria-label={`Save ${wallpaper.title} to custom collection`}
+            >
+              <FolderPlus className="w-4 h-4" />
+            </button>
+
+            {/* Favorite Button */}
             <button
               type="button"
               onClick={toggleFavorite}
@@ -326,6 +318,8 @@ export default function WallpaperDetailClient({
                   : "bg-white/[0.05] hover:bg-white/10 text-zinc-300 hover:text-white border-white/10"
               }`}
               title={isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+              aria-label={isFavorite ? `Remove ${wallpaper.title} from favorites` : `Save ${wallpaper.title} to favorites`}
+              aria-pressed={isFavorite}
             >
               <Heart className={`w-4 h-4 ${isFavorite ? "fill-rose-500 text-rose-500" : ""}`} />
             </button>
@@ -942,6 +936,14 @@ export default function WallpaperDetailClient({
           <span>{toastMessage}</span>
         </div>
       )}
+
+      {/* Save to Collection Modal */}
+      <AddToCollectionModal
+        isOpen={isAddToColOpen}
+        onClose={() => setIsAddToColOpen(false)}
+        wallpaper={wallpaper}
+        onNotify={notify}
+      />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { X, Heart, Download, Trash2, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import { X, Heart, Trash2, ExternalLink } from "lucide-react";
 import { Wallpaper } from "@/data/wallpapers";
 import WallpaperCard from "./WallpaperCard";
 
@@ -49,7 +50,17 @@ export default function FavoritesModal({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/favorites"
+              onClick={onClose}
+              className="text-xs text-zinc-300 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/10 border border-white/10 transition"
+              title="Open full dedicated favorites page"
+            >
+              <span>Full Page</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+
             {favoriteWallpapers.length > 0 && (
               <button
                 onClick={() => {

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Heart, Shield, Check } from "lucide-react";
+import { ArrowRight, Shield, Check } from "lucide-react";
 
 interface FooterProps {
   onNotify: (msg: string) => void;
@@ -111,7 +111,7 @@ export default function Footer({ onNotify }: FooterProps) {
             {subscribed ? (
               <div className="p-3 rounded-xl bg-white/[0.08] border border-white/15 text-zinc-200 text-xs flex items-center gap-2">
                 <Check className="w-4 h-4 text-white" />
-                <span>You're on the list for the next release.</span>
+                <span>You&apos;re on the list for the next release.</span>
               </div>
             ) : (
               <form onSubmit={handleSubscribe} className="flex items-center gap-2">

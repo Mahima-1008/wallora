@@ -15,18 +15,19 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  Info,
   Palette,
   ExternalLink,
   ZoomIn,
   ZoomOut,
   RefreshCw,
   AlertCircle,
-  FileText,
   ShieldCheck,
   Layers,
+  FolderPlus,
 } from "lucide-react";
 import { Wallpaper } from "@/data/wallpapers";
+import { useFavorites } from "@/context/FavoritesContext";
+import AddToCollectionModal from "./AddToCollectionModal";
 import {
   WallpaperDownloadVersion,
   DownloadProgress,
@@ -38,11 +39,11 @@ import {
 interface WallpaperModalProps {
   wallpaper: Wallpaper | null;
   allWallpapers: Wallpaper[];
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
+  isFavorite?: boolean;
+  onToggleFavorite?: (id: string) => void;
   onClose: () => void;
   onSelectWallpaper: (wallpaper: Wallpaper) => void;
-  onNotify: (msg: string) => void;
+  onNotify?: (msg: string) => void;
 }
 
 type DeviceMode = "fit" | "laptop" | "phone" | "desktop" | "zoom";
@@ -50,12 +51,24 @@ type DeviceMode = "fit" | "laptop" | "phone" | "desktop" | "zoom";
 export default function WallpaperModal({
   wallpaper,
   allWallpapers,
-  isFavorite,
+  isFavorite: isFavoriteProp,
   onToggleFavorite,
   onClose,
   onSelectWallpaper,
   onNotify,
 }: WallpaperModalProps) {
+  const { isFavorite: checkFavorite, toggleFavorite: contextToggleFavorite } = useFavorites();
+  const isFav = isFavoriteProp !== undefined ? isFavoriteProp : (wallpaper ? checkFavorite(wallpaper.id) : false);
+
+  const handleToggleFavorite = () => {
+    if (!wallpaper) return;
+    if (onToggleFavorite) {
+      onToggleFavorite(wallpaper.id);
+    } else {
+      contextToggleFavorite(wallpaper.id);
+    }
+  };
+
   // Modal DOM reference for focus trapping
   const modalRef = useRef<HTMLDivElement>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
@@ -79,6 +92,7 @@ export default function WallpaperModal({
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedPrompt, setCopiedPrompt] = useState(false);
   const [copiedColor, setCopiedColor] = useState<string | null>(null);
+  const [isAddToColOpen, setIsAddToColOpen] = useState(false);
 
   // Touch swipe handling
   const touchStartXRef = useRef<number>(0);
@@ -238,7 +252,7 @@ export default function WallpaperModal({
 
       const successText = `Downloaded "${wallpaper.title}" in ${targetVersion.label}`;
       setDownloadSuccessMessage(successText);
-      onNotify(successText);
+      onNotify?.(successText);
 
       setTimeout(() => {
         setDownloadSuccessMessage(null);
@@ -246,7 +260,7 @@ export default function WallpaperModal({
       }, 4000);
     } catch {
       // Progress error state is set inside downloadWallpaper
-      onNotify(`Download failed. Please try again or use the direct link.`);
+      onNotify?.(`Download failed. Please try again or use the direct link.`);
     }
   };
 
@@ -268,10 +282,10 @@ export default function WallpaperModal({
         document.body.removeChild(textarea);
       }
       setCopiedLink(true);
-      onNotify("Direct wallpaper link copied to clipboard!");
+      onNotify?.("Direct wallpaper link copied to clipboard!");
       setTimeout(() => setCopiedLink(false), 2500);
     } catch {
-      onNotify(`Link: ${permalink}`);
+      onNotify?.(`Link: ${permalink}`);
     }
   };
 
@@ -294,7 +308,7 @@ export default function WallpaperModal({
   const copyColorCode = (hex: string) => {
     navigator.clipboard?.writeText(hex);
     setCopiedColor(hex);
-    onNotify(`Copied hex: ${hex}`);
+    onNotify?.(`Copied hex: ${hex}`);
     setTimeout(() => setCopiedColor(null), 2000);
   };
 
@@ -302,7 +316,7 @@ export default function WallpaperModal({
     if (!wallpaper) return;
     navigator.clipboard?.writeText(wallpaper.aiPrompt);
     setCopiedPrompt(true);
-    onNotify("AI generation prompt copied to clipboard!");
+    onNotify?.("AI generation prompt copied to clipboard!");
     setTimeout(() => setCopiedPrompt(false), 2000);
   };
 
@@ -446,19 +460,31 @@ export default function WallpaperModal({
               <ExternalLink className="w-4 h-4" />
             </a>
 
+            {/* Save to Collection */}
+            <button
+              type="button"
+              onClick={() => setIsAddToColOpen(true)}
+              className="p-2 rounded-xl border bg-white/[0.05] hover:bg-white/10 text-zinc-300 hover:text-white border-white/10 transition"
+              title="Save to Collection"
+              aria-label={`Save ${wallpaper.title} to custom collection`}
+            >
+              <FolderPlus className="w-4 h-4" />
+            </button>
+
             {/* Favorite toggle */}
             <button
               type="button"
-              onClick={() => onToggleFavorite(wallpaper.id)}
+              onClick={handleToggleFavorite}
               className={`p-2 rounded-xl border transition ${
-                isFavorite
+                isFav
                   ? "bg-rose-500/20 text-rose-500 border-rose-500/40"
                   : "bg-white/[0.05] hover:bg-white/10 text-zinc-300 hover:text-white border-white/10"
               }`}
-              title={isFavorite ? "Remove from Favorites" : "Save to Favorites"}
-              aria-label={isFavorite ? "Remove from Favorites" : "Save to Favorites"}
+              title={isFav ? "Remove from Favorites" : "Save to Favorites"}
+              aria-label={isFav ? `Remove ${wallpaper.title} from favorites` : `Save ${wallpaper.title} to favorites`}
+              aria-pressed={isFav}
             >
-              <Heart className={`w-4 h-4 ${isFavorite ? "fill-rose-500 text-rose-500" : ""}`} />
+              <Heart className={`w-4 h-4 ${isFav ? "fill-rose-500 text-rose-500" : ""}`} />
             </button>
 
             {/* Close button with autofocus */}
@@ -1120,6 +1146,16 @@ export default function WallpaperModal({
           )}
         </div>
       </div>
+
+      {/* Save to Collection Modal */}
+      {wallpaper && (
+        <AddToCollectionModal
+          isOpen={isAddToColOpen}
+          onClose={() => setIsAddToColOpen(false)}
+          wallpaper={wallpaper}
+          onNotify={onNotify || (() => {})}
+        />
+      )}
     </div>
   );
 }

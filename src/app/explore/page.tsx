@@ -24,6 +24,7 @@ import FavoritesModal from "@/components/FavoritesModal";
 import Footer from "@/components/Footer";
 import ExploreFilterPanel from "@/components/ExploreFilterPanel";
 import { WALLPAPERS, Wallpaper } from "@/data/wallpapers";
+import { useFavorites } from "@/context/FavoritesContext";
 import {
   matchesCategory,
   matchesOrientation,
@@ -75,7 +76,13 @@ function ExploreContent() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   // Favorites & Modals
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const {
+    favorites,
+    favoritesCount,
+    favoriteWallpapers,
+    toggleFavorite,
+    clearAllFavorites,
+  } = useFavorites();
   const [selectedWallpaper, setSelectedWallpaper] = useState<Wallpaper | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
@@ -94,43 +101,6 @@ function ExploreContent() {
     const timer = setTimeout(() => setToastMessage(null), 3200);
     return () => clearTimeout(timer);
   }, [toastMessage]);
-
-  // Load favorites from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("wallora_favorites");
-      if (saved) {
-        setFavorites(JSON.parse(saved));
-      } else {
-        const sampleFavs = ["wall-1", "wall-3", "wall-7"];
-        setFavorites(sampleFavs);
-        localStorage.setItem("wallora_favorites", JSON.stringify(sampleFavs));
-      }
-    } catch {
-      // Ignore
-    }
-  }, []);
-
-  const toggleFavorite = (id: string) => {
-    setFavorites((prev) => {
-      const next = prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id];
-      try {
-        localStorage.setItem("wallora_favorites", JSON.stringify(next));
-      } catch {
-        // Ignore
-      }
-      return next;
-    });
-  };
-
-  const clearAllFavorites = () => {
-    setFavorites([]);
-    try {
-      localStorage.removeItem("wallora_favorites");
-    } catch {
-      // Ignore
-    }
-  };
 
   const handleAddWallpaper = (newWall: Wallpaper) => {
     setWallpapers((prev) => [newWall, ...prev]);
@@ -470,10 +440,6 @@ function ExploreContent() {
       },
     },
   ];
-
-  const favoriteWallpapers = useMemo(() => {
-    return wallpapers.filter((w) => favorites.includes(w.id));
-  }, [wallpapers, favorites]);
 
   return (
     <div className="min-h-screen bg-[#0B0C10] text-[#F4F4F6] flex flex-col font-sans selection:bg-white/20 selection:text-white">
